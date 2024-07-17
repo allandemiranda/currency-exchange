@@ -3,16 +3,27 @@ package app.bank.dummy.providers;
 import app.bank.dummy.dtos.CurrencyDto;
 import app.bank.dummy.dtos.NewCurrencyDto;
 import app.bank.dummy.exceptions.CurrencyNotFoundException;
+import app.bank.dummy.exceptions.RateTaxUnavailableException;
 import app.bank.dummy.mappers.CurrencyMapper;
 import app.bank.dummy.models.Currency;
 import app.bank.dummy.repositories.CurrencyRepository;
 import app.bank.dummy.services.CurrencyService;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import jakarta.validation.constraints.NotNull;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Collection;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,43 +33,25 @@ public class CurrencyProvider implements CurrencyService {
 
   private final CurrencyRepository currencyRepository;
   private final CurrencyMapper currencyMapper;
-
-//  @Override
-//  public @NonNull CurrencyDto getCurrencyByCode(final @NonNull String currencyCode, final @NonNull String rateCurrencyCode) {
-//    final Currency currency = this.getCurrencyRepository().findById(currencyCode).orElseThrow(CurrencyNotFoundException::new);
-//    final Currency currencyRate = this.getCurrencyRepository().findById(rateCurrencyCode).orElseThrow(CurrencyNotFoundException::new);
-//
-//    // Setting URL
-//    String url_str = "https://v6.exchangerate-api.com/v6/9971c4dddd4d3aaccdc6fb2b/latest/" + currency.getCode();
-//
-//    try {
-//      // Making Request
-//      URL url = new URL(url_str);
-//      HttpURLConnection request = (HttpURLConnection) url.openConnection();
-//      request.connect();
-//
-//      // Convert to JSON
-//      JsonParser jp = new JsonParser();
-//      JsonElement root = jp.parse(new InputStreamReader((InputStream) request.getContent()));
-//      JsonObject jsonobj = root.getAsJsonObject();
-//
-//      // Accessing object
-//      String req_result = jsonobj.get("result").getAsString();
-//      System.out.println("result: " + req_result);
-//
-//      System.out.println("Rate: " + jsonobj.asMap().get("conversion_rates").getAsJsonObject().asMap().get(currencyRate.getCode()).getAsDouble());
-//    } catch (IOException e) {
-//      throw new RuntimeException(e);
-//    }
-//
-//    return this.getCurrencyMapper().toDto(currency, 1.2);
-//  }
+  @Value("${external-api.key}")
+  private String key;
 
   @Override
   public double getTaxRate(final @NonNull CurrencyDto debitCurrency, final @NonNull CurrencyDto creditCurrency) {
-    final String debitCode = debitCurrency.code();
     final String creditCode = creditCurrency.code();
-    return 1.2;
+    final String debitCode = debitCurrency.code();
+
+    final String url = "https://v6.exchangerate-api.com/v6/".concat(key).concat("/latest/").concat(creditCode);
+    final HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).method("GET", HttpRequest.BodyPublishers.noBody()).build();
+
+    try (final HttpClient httpClient = HttpClient.newHttpClient()) {
+      final HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+      final JsonElement root = JsonParser.parseReader(new InputStreamReader(response.body()));
+      return root.getAsJsonObject().asMap().get("conversion_rates").getAsJsonObject().asMap().get(debitCode).getAsDouble();
+    } catch (IOException | InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new RateTaxUnavailableException();
+    }
   }
 
   @Override
