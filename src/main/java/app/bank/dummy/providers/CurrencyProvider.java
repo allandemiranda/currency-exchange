@@ -52,7 +52,8 @@ public class CurrencyProvider implements CurrencyService {
 //      Thread.currentThread().interrupt();
 //      throw new RateTaxUnavailableException();
 //    }
-    return 1.5;
+    throw new RateTaxUnavailableException("ERRO TESTE");
+//    return 1.5;
   }
 
   @Override

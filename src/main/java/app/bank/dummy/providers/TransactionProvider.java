@@ -1,7 +1,7 @@
 package app.bank.dummy.providers;
 
 import app.bank.dummy.dtos.TransactionDto;
-import app.bank.dummy.exceptions.AccountNotFountException;
+import app.bank.dummy.exceptions.AccountNotFoundException;
 import app.bank.dummy.mappers.AccountMapper;
 import app.bank.dummy.mappers.TransactionMapper;
 import app.bank.dummy.models.Account;
@@ -30,11 +30,11 @@ public class TransactionProvider implements TransactionService {
 
   @Override
   public TransactionDto createTransaction(final @NotNull UUID debitAccountId, final @NotNull UUID creditAccountId, final double amount, final double taxRate) {
-    final Account debit = this.getAccountRepository().findById(debitAccountId).orElseThrow(() -> new AccountNotFountException(debitAccountId));
+    final Account debit = this.getAccountRepository().findById(debitAccountId).orElseThrow(() -> new AccountNotFoundException(debitAccountId));
     debit.setBalance(debit.getBalance() - amount);
     final Account debitUpdate = this.getAccountRepository().save(debit);
 
-    final Account credit = this.getAccountRepository().findById(creditAccountId).orElseThrow(() -> new AccountNotFountException(creditAccountId));
+    final Account credit = this.getAccountRepository().findById(creditAccountId).orElseThrow(() -> new AccountNotFoundException(creditAccountId));
     credit.setBalance(credit.getBalance() + (amount * taxRate));
     final Account creditUpdate = this.getAccountRepository().save(credit);
 
