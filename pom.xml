@@ -34,7 +34,7 @@
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-rest</artifactId>
+      <artifactId>spring-boot-starter-web</artifactId>
       <version>3.3.1</version>
     </dependency>
     <dependency>
@@ -101,10 +101,10 @@
     </dependency>
 
 
-    <dependency>
-      <groupId>org.springframework.data</groupId>
-      <artifactId>spring-data-rest-hal-explorer</artifactId>
-    </dependency>
+<!--    <dependency>-->
+<!--      <groupId>org.springframework.data</groupId>-->
+<!--      <artifactId>spring-data-rest-hal-explorer</artifactId>-->
+<!--    </dependency>-->
 
   </dependencies>
 

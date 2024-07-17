@@ -1,22 +1,18 @@
 package app.bank.dummy.models;
 
-import jakarta.persistence.CollectionTable;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.Getter;
@@ -55,13 +51,6 @@ public class Account implements Serializable {
   @Column(name = "balance", nullable = false)
   @JdbcTypeCode(SqlTypes.DOUBLE)
   private double balance;
-
-  @NotNull
-  @ElementCollection
-  @MapKeyColumn(name = "transaction_id")
-  @Column(name = "tmp_balance", nullable = false)
-  @CollectionTable(name = "transaction_historic")
-  private Map<Transaction, Double> transactionHistoric = new HashMap<>();
 
   @Override
   public final boolean equals(final Object o) {

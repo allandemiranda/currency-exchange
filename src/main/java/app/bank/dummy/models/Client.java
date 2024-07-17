@@ -30,8 +30,8 @@ import org.hibernate.type.SqlTypes;
 @ToString
 @RequiredArgsConstructor
 @Entity
-@Table(name = "bank_user")
-public class User implements Serializable {
+@Table(name = "client")
+public class Client implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1016254965437964086L;
@@ -83,8 +83,8 @@ public class User implements Serializable {
     if (thisEffectiveClass != oEffectiveClass) {
       return false;
     }
-    final User user = (User) o;
-    return getId() != null && Objects.equals(getId(), user.getId());
+    final Client client = (Client) o;
+    return getId() != null && Objects.equals(getId(), client.getId());
   }
 
   @Override

@@ -1,23 +1,14 @@
 package app.bank.dummy.repositories;
 
 import app.bank.dummy.models.Currency;
-import app.bank.dummy.projections.CurrencyProjection;
 import java.util.Optional;
 import java.util.UUID;
-import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.data.rest.core.annotation.RepositoryRestResource;
-import org.springframework.data.rest.core.annotation.RestResource;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.lang.NonNull;
+import org.springframework.transaction.annotation.Transactional;
 
-@RepositoryRestResource(excerptProjection = CurrencyProjection.class)
-public interface CurrencyRepository extends CrudRepository<Currency, UUID>, PagingAndSortingRepository<Currency, UUID> {
+public interface CurrencyRepository extends JpaRepository<Currency, UUID> {
 
-  @Override
-  @RestResource(exported = false)
-  void deleteById(@NonNull UUID id);
-
-  @RestResource()
+  @Transactional(readOnly = true)
   Optional<Currency> findByCode(@NonNull String code);
-
 }

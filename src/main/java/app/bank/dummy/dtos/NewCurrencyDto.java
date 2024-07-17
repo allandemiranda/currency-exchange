@@ -6,13 +6,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.UUID;
 
 /**
  * DTO for {@link app.bank.dummy.models.Currency}
  */
-public record CurrencyDto(@NotNull UUID id, @NotNull @Size(min = 3, max = 3) String code, @NotNull @NotEmpty @NotBlank String name, @NotNull @NotEmpty @NotBlank String symbol) implements Serializable {
+public record NewCurrencyDto(@NotNull @Size(min = 3, max = 3) String code, @NotNull @NotEmpty @NotBlank String name, @NotNull @NotEmpty @NotBlank String symbol) implements Serializable {
 
   @Serial
-  private static final long serialVersionUID = 5680790969926951913L;
+  private static final long serialVersionUID = 5612803019832550600L;
 }

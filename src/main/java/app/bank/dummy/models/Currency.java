@@ -57,7 +57,7 @@ public class Currency implements Serializable {
   @NotBlank
   @NotEmpty
   @Column(name = "symbol", nullable = false)
-  @JdbcTypeCode(SqlTypes.CHAR)
+  @JdbcTypeCode(SqlTypes.VARCHAR)
   private String symbol;
 
   @Override
