@@ -1,6 +1,7 @@
 package app.bank.dummy.mappers;
 
 import app.bank.dummy.dtos.CurrencyDto;
+import app.bank.dummy.dtos.NewCurrencyDto;
 import app.bank.dummy.models.Currency;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants.ComponentModel;
@@ -13,4 +14,5 @@ public interface CurrencyMapper {
 
   CurrencyDto toDto(Currency currency);
 
+  Currency toEntity(NewCurrencyDto newCurrencyDto);
 }
