@@ -1,7 +1,7 @@
 package app.bank.dummy.providers;
 
-import app.bank.dummy.dtos.AccountDto;
 import app.bank.dummy.dtos.TransactionDto;
+import app.bank.dummy.exceptions.AccountNotFountException;
 import app.bank.dummy.mappers.AccountMapper;
 import app.bank.dummy.mappers.TransactionMapper;
 import app.bank.dummy.models.Account;
@@ -12,6 +12,7 @@ import app.bank.dummy.services.TransactionService;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -28,15 +29,14 @@ public class TransactionProvider implements TransactionService {
   private final AccountMapper accountMapper;
 
   @Override
-  public TransactionDto createTransaction(final AccountDto debitAccount, final AccountDto creditAccount, final double amount, final double taxRate) {
-    final Account debit = this.getAccountMapper().toEntity(debitAccount);
+  public TransactionDto createTransaction(final @NotNull UUID debitAccountId, final @NotNull UUID creditAccountId, final double amount, final double taxRate) {
+    final Account debit = this.getAccountRepository().findById(debitAccountId).orElseThrow(() -> new AccountNotFountException(debitAccountId));
     debit.setBalance(debit.getBalance() - amount);
     final Account debitUpdate = this.getAccountRepository().save(debit);
 
-    final Account credit = this.getAccountMapper().toEntity(creditAccount);
+    final Account credit = this.getAccountRepository().findById(creditAccountId).orElseThrow(() -> new AccountNotFountException(creditAccountId));
     credit.setBalance(credit.getBalance() + (amount * taxRate));
     final Account creditUpdate = this.getAccountRepository().save(credit);
-
 
     final Transaction transaction = new Transaction();
     transaction.setDataTime(LocalDateTime.now());

@@ -33,6 +33,6 @@ public class TransactionController implements TransactionRequest {
     final AccountDto debitAccount = this.getClientService().getClientById(openTransactionDto.debitClientId()).account();
     final AccountDto creditAccount = this.getClientService().getClientById(openTransactionDto.creditClientId()).account();
     final double taxRate = this.getCurrencyService().getTaxRate(debitAccount.currency(), creditAccount.currency());
-    return this.getTransactionService().createTransaction(debitAccount, creditAccount, openTransactionDto.amount(), taxRate);
+    return this.getTransactionService().createTransaction(debitAccount.id(), creditAccount.id(), openTransactionDto.amount(), taxRate);
   }
 }
