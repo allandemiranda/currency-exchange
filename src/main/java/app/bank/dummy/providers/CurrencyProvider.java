@@ -38,20 +38,21 @@ public class CurrencyProvider implements CurrencyService {
 
   @Override
   public double getTaxRate(final @NonNull CurrencyDto debitCurrency, final @NonNull CurrencyDto creditCurrency) {
-    final String creditCode = creditCurrency.code();
-    final String debitCode = debitCurrency.code();
-
-    final String url = "https://v6.exchangerate-api.com/v6/".concat(key).concat("/latest/").concat(creditCode);
-    final HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).method("GET", HttpRequest.BodyPublishers.noBody()).build();
-
-    try (final HttpClient httpClient = HttpClient.newHttpClient()) {
-      final HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
-      final JsonElement root = JsonParser.parseReader(new InputStreamReader(response.body()));
-      return root.getAsJsonObject().asMap().get("conversion_rates").getAsJsonObject().asMap().get(debitCode).getAsDouble();
-    } catch (IOException | InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new RateTaxUnavailableException();
-    }
+//    final String creditCode = creditCurrency.code();
+//    final String debitCode = debitCurrency.code();
+//
+//    final String url = "https://v6.exchangerate-api.com/v6/".concat(key).concat("/latest/").concat(creditCode);
+//    final HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).method("GET", HttpRequest.BodyPublishers.noBody()).build();
+//
+//    try (final HttpClient httpClient = HttpClient.newHttpClient()) {
+//      final HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+//      final JsonElement root = JsonParser.parseReader(new InputStreamReader(response.body()));
+//      return root.getAsJsonObject().asMap().get("conversion_rates").getAsJsonObject().asMap().get(debitCode).getAsDouble();
+//    } catch (IOException | InterruptedException e) {
+//      Thread.currentThread().interrupt();
+//      throw new RateTaxUnavailableException();
+//    }
+    return 1.5;
   }
 
   @Override
