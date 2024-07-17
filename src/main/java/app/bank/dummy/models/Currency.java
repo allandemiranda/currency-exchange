@@ -5,7 +5,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -27,7 +29,8 @@ import org.hibernate.type.SqlTypes;
 @ToString
 @RequiredArgsConstructor
 @Entity
-@Table(name = "currency")
+@Table(name = "currency", indexes = {@Index(name = "idx_currency_id_code_unq", columnList = "id, code", unique = true)}, uniqueConstraints = {
+    @UniqueConstraint(name = "uc_currency_id_code", columnNames = {"id", "code"})})
 public class Currency implements Serializable {
 
   @Serial
