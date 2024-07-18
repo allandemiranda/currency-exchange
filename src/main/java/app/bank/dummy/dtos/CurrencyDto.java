@@ -11,7 +11,7 @@ import java.util.UUID;
 /**
  * DTO for {@link app.bank.dummy.models.Currency}
  */
-public record CurrencyDto(@NotNull UUID id, @NotNull @Size(min = 3, max = 3) String code, @NotNull @NotEmpty @NotBlank String name, @NotNull @NotEmpty @NotBlank String symbol) implements Serializable {
+public record CurrencyDto(@NotNull @Size(min = 3, max = 3) String code, @NotNull @NotEmpty @NotBlank String name, @NotNull @NotEmpty @NotBlank String symbol) implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 5680790969926951913L;

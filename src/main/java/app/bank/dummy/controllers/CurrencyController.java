@@ -1,7 +1,6 @@
 package app.bank.dummy.controllers;
 
 import app.bank.dummy.dtos.CurrencyDto;
-import app.bank.dummy.dtos.NewCurrencyDto;
 import app.bank.dummy.requests.CurrencyRequest;
 import app.bank.dummy.services.CurrencyService;
 import java.util.Collection;
@@ -23,7 +22,7 @@ public class CurrencyController implements CurrencyRequest {
   }
 
   @Override
-  public CurrencyDto createCurrency(final NewCurrencyDto newCurrencyDto) {
-    return this.getCurrencyService().createCurrency(newCurrencyDto);
+  public CurrencyDto createCurrency(final CurrencyDto currencyDto) {
+    return this.getCurrencyService().createCurrency(currencyDto);
   }
 }

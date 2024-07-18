@@ -1,7 +1,6 @@
 package app.bank.dummy.requests;
 
 import app.bank.dummy.dtos.CurrencyDto;
-import app.bank.dummy.dtos.NewCurrencyDto;
 import jakarta.validation.Valid;
 import java.util.Collection;
 import org.springframework.http.HttpStatus;
@@ -20,5 +19,5 @@ public interface CurrencyRequest {
 
   @PostMapping()
   @ResponseStatus(HttpStatus.CREATED)
-  CurrencyDto createCurrency(final @RequestBody @Valid NewCurrencyDto newCurrencyDto);
+  CurrencyDto createCurrency(final @RequestBody @Valid CurrencyDto currencyDto);
 }

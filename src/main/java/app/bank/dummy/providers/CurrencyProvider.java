@@ -1,23 +1,13 @@
 package app.bank.dummy.providers;
 
 import app.bank.dummy.dtos.CurrencyDto;
-import app.bank.dummy.dtos.NewCurrencyDto;
 import app.bank.dummy.exceptions.CurrencyNotFoundException;
 import app.bank.dummy.exceptions.RateTaxUnavailableException;
 import app.bank.dummy.mappers.CurrencyMapper;
 import app.bank.dummy.models.Currency;
 import app.bank.dummy.repositories.CurrencyRepository;
 import app.bank.dummy.services.CurrencyService;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import jakarta.validation.constraints.NotNull;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.Collection;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -69,8 +59,8 @@ public class CurrencyProvider implements CurrencyService {
   }
 
   @Override
-  public CurrencyDto createCurrency(final @NotNull NewCurrencyDto newCurrencyDto) {
-    final Currency currencyEntity = this.getCurrencyMapper().toEntity(newCurrencyDto);
+  public CurrencyDto createCurrency(final @NotNull CurrencyDto currencyDto) {
+    final Currency currencyEntity = this.getCurrencyMapper().toEntity(currencyDto);
     final Currency savedCurrency = this.getCurrencyRepository().save(currencyEntity);
     return this.getCurrencyMapper().toDto(savedCurrency);
   }
