@@ -2,7 +2,7 @@ package app.bank.dummy.exceptions;
 
 import lombok.experimental.StandardException;
 
-
+@StandardException
 public class RateTaxUnavailableException extends RuntimeException {
 
   public RateTaxUnavailableException(final String currencyCode) {

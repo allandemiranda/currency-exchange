@@ -22,7 +22,7 @@ public class AccountAdvice {
   @ExceptionHandler(AccountNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public Map<String, Object> accountNotFoundHandler(final @NonNull WebRequest webRequest) {
-    return this.getAttributes().extractErrorAttributes(webRequest);
+    return this.getAttributes().extractErrorAttributes(webRequest, HttpStatus.NOT_FOUND);
   }
 
 }

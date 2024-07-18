@@ -1,6 +1,6 @@
 package app.bank.dummy.repositories;
 
-import app.bank.dummy.models.Transaction;
+import app.bank.dummy.entities.Transaction;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 

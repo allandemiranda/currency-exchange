@@ -1,6 +1,7 @@
 package app.bank.dummy.services;
 
 import app.bank.dummy.dtos.CurrencyDto;
+import app.bank.dummy.dtos.UpdateCurrencyDto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.util.Collection;
@@ -24,4 +25,8 @@ public interface CurrencyService {
   @Transactional
   @NotNull
   CurrencyDto createCurrency(final @NotNull CurrencyDto currencyDto);
+
+  @Transactional
+  @NotNull
+  CurrencyDto updateCurrencyByCode(final @NotNull String code, final @NonNull UpdateCurrencyDto updateCurrencyDto);
 }

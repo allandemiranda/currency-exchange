@@ -1,10 +1,11 @@
 package app.bank.dummy.providers;
 
 import app.bank.dummy.dtos.CurrencyDto;
+import app.bank.dummy.dtos.UpdateCurrencyDto;
+import app.bank.dummy.entities.Currency;
 import app.bank.dummy.exceptions.CurrencyNotFoundException;
 import app.bank.dummy.exceptions.RateTaxUnavailableException;
 import app.bank.dummy.mappers.CurrencyMapper;
-import app.bank.dummy.models.Currency;
 import app.bank.dummy.repositories.CurrencyRepository;
 import app.bank.dummy.services.CurrencyService;
 import jakarta.validation.constraints.NotNull;
@@ -62,6 +63,14 @@ public class CurrencyProvider implements CurrencyService {
   public CurrencyDto createCurrency(final @NotNull CurrencyDto currencyDto) {
     final Currency currencyEntity = this.getCurrencyMapper().toEntity(currencyDto);
     final Currency savedCurrency = this.getCurrencyRepository().save(currencyEntity);
+    return this.getCurrencyMapper().toDto(savedCurrency);
+  }
+
+  @Override
+  public @NotNull CurrencyDto updateCurrencyByCode(final String code, final @NonNull UpdateCurrencyDto updateCurrencyDto) {
+    final Currency currency = this.getCurrencyRepository().findByCode(code).orElseThrow(() -> new CurrencyNotFoundException(code));
+    final Currency currencyToUpdate = this.getCurrencyMapper().partialUpdate(updateCurrencyDto, currency);
+    final Currency savedCurrency = this.getCurrencyRepository().save(currencyToUpdate);
     return this.getCurrencyMapper().toDto(savedCurrency);
   }
 }

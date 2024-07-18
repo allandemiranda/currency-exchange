@@ -2,7 +2,7 @@ package app.bank.dummy.mappers;
 
 import app.bank.dummy.dtos.ClientDto;
 import app.bank.dummy.dtos.NewClientDto;
-import app.bank.dummy.models.Client;
+import app.bank.dummy.entities.Client;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants.ComponentModel;

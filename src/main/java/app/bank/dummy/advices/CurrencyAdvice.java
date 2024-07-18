@@ -23,12 +23,12 @@ public class CurrencyAdvice {
   @ExceptionHandler(CurrencyNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public Map<String, Object> currencyNotFoundHandler(final @NonNull WebRequest webRequest) {
-    return this.getAttributes().extractErrorAttributes(webRequest);
+    return this.getAttributes().extractErrorAttributes(webRequest, HttpStatus.NOT_FOUND);
   }
 
   @ExceptionHandler(RateTaxUnavailableException.class)
   @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
   public Map<String, Object> rateTaxUnavailableHandler(final @NonNull WebRequest webRequest) {
-    return this.getAttributes().extractErrorAttributes(webRequest);
+    return this.getAttributes().extractErrorAttributes(webRequest, HttpStatus.SERVICE_UNAVAILABLE);
   }
 }

@@ -1,19 +1,21 @@
-package app.bank.dummy.models;
+package app.bank.dummy.entities;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.Getter;
@@ -29,12 +31,11 @@ import org.hibernate.type.SqlTypes;
 @ToString
 @RequiredArgsConstructor
 @Entity
-@Table(name = "currency", indexes = {@Index(name = "idx_currency_id_code_unq", columnList = "id, code", unique = true)}, uniqueConstraints = {
-    @UniqueConstraint(name = "uc_currency_id_code", columnNames = {"id", "code"})})
-public class Currency implements Serializable {
+@Table(name = "transaction")
+public class Transaction implements Serializable {
 
   @Serial
-  private static final long serialVersionUID = 4772984443652657322L;
+  private static final long serialVersionUID = 1016254965437964086L;
 
   @Id
   @NotNull
@@ -44,24 +45,38 @@ public class Currency implements Serializable {
   private UUID id;
 
   @NotNull
-  @Size(min = 3, max = 3)
-  @Column(name = "code", nullable = false, length = 3, unique = true)
-  @JdbcTypeCode(SqlTypes.CHAR)
-  private String code;
+  @PastOrPresent
+  @Column(name = "data_time", nullable = false, updatable = false)
+  @JdbcTypeCode(SqlTypes.TIMESTAMP)
+  private LocalDateTime dataTime;
+
+  @Positive
+  @Column(name = "amount", nullable = false, updatable = false)
+  private double amount;
+
+  @Positive
+  @Column(name = "tax_rate", nullable = false, updatable = false)
+  private double taxRate;
 
   @NotNull
-  @NotBlank
-  @NotEmpty
-  @Column(name = "name", nullable = false)
-  @JdbcTypeCode(SqlTypes.VARCHAR)
-  private String name;
+  @ManyToOne(optional = false, cascade = CascadeType.MERGE)
+  @JoinColumn(name = "debit_account_id", nullable = false, updatable = false)
+  @JdbcTypeCode(SqlTypes.UUID)
+  private Account debitAccount;
+
+  @PositiveOrZero
+  @Column(name = "debit_account_tmp_balance", nullable = false, updatable = false)
+  private double debitTmpBalance;
 
   @NotNull
-  @NotBlank
-  @NotEmpty
-  @Column(name = "symbol", nullable = false)
-  @JdbcTypeCode(SqlTypes.VARCHAR)
-  private String symbol;
+  @ManyToOne(optional = false, cascade = CascadeType.MERGE)
+  @JoinColumn(name = "credit_account_id", nullable = false, updatable = false)
+  @JdbcTypeCode(SqlTypes.UUID)
+  private Account creditAccount;
+
+  @PositiveOrZero
+  @Column(name = "credit_account_tmp_balance", nullable = false, updatable = false)
+  private double creditTmpBalance;
 
   @Override
   public final boolean equals(final Object o) {
@@ -76,8 +91,8 @@ public class Currency implements Serializable {
     if (thisEffectiveClass != oEffectiveClass) {
       return false;
     }
-    final Currency currency = (Currency) o;
-    return getCode() != null && Objects.equals(getCode(), currency.getCode());
+    final Transaction that = (Transaction) o;
+    return getId() != null && Objects.equals(getId(), that.getId());
   }
 
   @Override

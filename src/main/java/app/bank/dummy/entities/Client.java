@@ -1,4 +1,4 @@
-package app.bank.dummy.models;
+package app.bank.dummy.entities;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -6,23 +6,21 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.ToString.Exclude;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.SqlTypes;
@@ -32,8 +30,8 @@ import org.hibernate.type.SqlTypes;
 @ToString
 @RequiredArgsConstructor
 @Entity
-@Table(name = "transaction", indexes = {@Index(name = "idx_transaction", columnList = "debit_account_id"), @Index(name = "idx_transaction", columnList = "credit_account_id")})
-public class Transaction implements Serializable {
+@Table(name = "client")
+public class Client implements Serializable {
 
   @Serial
   private static final long serialVersionUID = 1016254965437964086L;
@@ -42,42 +40,35 @@ public class Transaction implements Serializable {
   @NotNull
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "id", nullable = false, updatable = false, unique = true)
-  @JdbcTypeCode(SqlTypes.UUID)
-  private UUID id;
+  @JdbcTypeCode(SqlTypes.NUMERIC)
+  private Long id;
 
   @NotNull
-  @PastOrPresent
-  @Column(name = "data_time", nullable = false, updatable = false)
-  @JdbcTypeCode(SqlTypes.TIMESTAMP)
-  private LocalDateTime dataTime;
-
-  @Positive
-  @Column(name = "amount", nullable = false, updatable = false)
-  private double amount;
-
-  @Positive
-  @Column(name = "tax_rate", nullable = false, updatable = false)
-  private double taxRate;
+  @NotEmpty
+  @NotBlank
+  @Column(name = "name", nullable = false)
+  @JdbcTypeCode(SqlTypes.VARCHAR)
+  private String name;
 
   @NotNull
-  @ManyToOne(optional = false, cascade = CascadeType.MERGE)
-  @JoinColumn(name = "debit_account_id", nullable = false, updatable = false)
-  @JdbcTypeCode(SqlTypes.UUID)
-  private Account debitAccount;
+  @NotEmpty
+  @NotBlank
+  @Column(name = "login", nullable = false, unique = true)
+  @JdbcTypeCode(SqlTypes.VARCHAR)
+  private String login;
 
-  @PositiveOrZero
-  @Column(name = "debit_account_tmp_balance", nullable = false, updatable = false)
-  private double debitTmpBalance;
+  @Exclude
+  @NotNull
+  @Size(min = 5)
+  @Column(name = "password", nullable = false)
+  @JdbcTypeCode(SqlTypes.VARCHAR)
+  private String password;
 
   @NotNull
-  @ManyToOne(optional = false, cascade = CascadeType.MERGE)
-  @JoinColumn(name = "credit_account_id", nullable = false, updatable = false)
+  @OneToOne(cascade = CascadeType.PERSIST, optional = false, orphanRemoval = true)
+  @JoinColumn(name = "account_id", nullable = false, unique = true)
   @JdbcTypeCode(SqlTypes.UUID)
-  private Account creditAccount;
-
-  @PositiveOrZero
-  @Column(name = "credit_account_tmp_balance", nullable = false, updatable = false)
-  private double creditTmpBalance;
+  private Account account;
 
   @Override
   public final boolean equals(final Object o) {
@@ -92,8 +83,8 @@ public class Transaction implements Serializable {
     if (thisEffectiveClass != oEffectiveClass) {
       return false;
     }
-    final Transaction that = (Transaction) o;
-    return getId() != null && Objects.equals(getId(), that.getId());
+    final Client client = (Client) o;
+    return getId() != null && Objects.equals(getId(), client.getId());
   }
 
   @Override

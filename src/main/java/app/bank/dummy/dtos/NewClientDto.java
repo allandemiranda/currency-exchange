@@ -9,7 +9,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * DTO for {@link app.bank.dummy.models.Client}
+ * DTO for {@link app.bank.dummy.entities.Client}
  */
 public record NewClientDto(@NotNull @NotEmpty @NotBlank String name, @NotNull @NotEmpty @NotBlank String login, @NotNull @Size(min = 5) String password,
                            @NotNull @NotEmpty @NotBlank @Size(min = 3, max = 3) String accountCurrencyCode, @PositiveOrZero double accountInitialBalance) implements Serializable {

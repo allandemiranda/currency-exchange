@@ -7,10 +7,10 @@ import app.bank.dummy.requests.TransactionRequest;
 import app.bank.dummy.services.ClientService;
 import app.bank.dummy.services.CurrencyService;
 import app.bank.dummy.services.TransactionService;
+import jakarta.validation.Valid;
 import java.util.Collection;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,7 +29,7 @@ public class TransactionController implements TransactionRequest {
   }
 
   @Override
-  public TransactionDto createTransaction(final @NonNull OpenTransactionDto openTransactionDto) {
+  public TransactionDto createTransaction(final @Valid OpenTransactionDto openTransactionDto) {
     final AccountDto debitAccount = this.getClientService().getClientById(openTransactionDto.debitClientId()).account();
     final AccountDto creditAccount = this.getClientService().getClientById(openTransactionDto.creditClientId()).account();
     final double taxRate = this.getCurrencyService().getTaxRate(debitAccount.currency(), creditAccount.currency());

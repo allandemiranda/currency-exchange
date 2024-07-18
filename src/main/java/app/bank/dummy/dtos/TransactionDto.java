@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * DTO for {@link app.bank.dummy.models.Transaction}
+ * DTO for {@link app.bank.dummy.entities.Transaction}
  */
 public record TransactionDto(@NotNull UUID id, @NotNull @PastOrPresent LocalDateTime dataTime, @Positive double amount, @Positive double taxRate, UUID debitAccountId,
                              String debitAccountCurrencyCode, @PositiveOrZero double debitTmpBalance, UUID creditAccountId, String creditAccountCurrencyCode,

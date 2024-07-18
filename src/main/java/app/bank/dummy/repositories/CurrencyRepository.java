@@ -1,6 +1,6 @@
 package app.bank.dummy.repositories;
 
-import app.bank.dummy.models.Currency;
+import app.bank.dummy.entities.Currency;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;

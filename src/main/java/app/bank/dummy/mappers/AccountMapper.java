@@ -1,7 +1,7 @@
 package app.bank.dummy.mappers;
 
 import app.bank.dummy.dtos.AccountDto;
-import app.bank.dummy.models.Account;
+import app.bank.dummy.entities.Account;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants.ComponentModel;
 import org.mapstruct.ReportingPolicy;

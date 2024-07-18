@@ -3,7 +3,6 @@ package app.bank.dummy.requests;
 import app.bank.dummy.dtos.ClientDto;
 import app.bank.dummy.dtos.NewClientDto;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,7 +21,7 @@ public interface ClientRequest {
 
   @GetMapping("/{id}")
   @ResponseStatus(HttpStatus.OK)
-  ClientDto getClients(final @PathVariable @NotNull Long id);
+  ClientDto getClients(final @PathVariable Long id);
 
   @PostMapping()
   @ResponseStatus(HttpStatus.CREATED)

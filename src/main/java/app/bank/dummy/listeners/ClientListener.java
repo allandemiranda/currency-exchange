@@ -1,6 +1,6 @@
 package app.bank.dummy.listeners;
 
-import app.bank.dummy.models.Client;
+import app.bank.dummy.entities.Client;
 import jakarta.persistence.PrePersist;
 import lombok.NonNull;
 import org.springframework.stereotype.Component;

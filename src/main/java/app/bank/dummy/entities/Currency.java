@@ -1,13 +1,10 @@
-package app.bank.dummy.models;
+package app.bank.dummy.entities;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
@@ -16,11 +13,11 @@ import jakarta.validation.constraints.Size;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.ToString.Exclude;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.SqlTypes;
@@ -30,45 +27,38 @@ import org.hibernate.type.SqlTypes;
 @ToString
 @RequiredArgsConstructor
 @Entity
-@Table(name = "client")
-public class Client implements Serializable {
+@Table(name = "currency")
+public class Currency implements Serializable {
 
   @Serial
-  private static final long serialVersionUID = 1016254965437964086L;
+  private static final long serialVersionUID = 4772984443652657322L;
 
   @Id
   @NotNull
   @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "id", nullable = false, updatable = false, unique = true)
-  @JdbcTypeCode(SqlTypes.NUMERIC)
-  private Long id;
+  @JdbcTypeCode(SqlTypes.UUID)
+  private UUID id;
 
   @NotNull
-  @NotEmpty
+  @Size(min = 3, max = 3)
+  @Column(name = "code", nullable = false, length = 3, unique = true)
+  @JdbcTypeCode(SqlTypes.CHAR)
+  private String code;
+
+  @NotNull
   @NotBlank
+  @NotEmpty
   @Column(name = "name", nullable = false)
   @JdbcTypeCode(SqlTypes.VARCHAR)
   private String name;
 
   @NotNull
-  @NotEmpty
   @NotBlank
-  @Column(name = "login", nullable = false, unique = true)
+  @NotEmpty
+  @Column(name = "symbol", nullable = false)
   @JdbcTypeCode(SqlTypes.VARCHAR)
-  private String login;
-
-  @Exclude
-  @NotNull
-  @Size(min = 5)
-  @Column(name = "password", nullable = false)
-  @JdbcTypeCode(SqlTypes.VARCHAR)
-  private String password;
-
-  @NotNull
-  @OneToOne(cascade = CascadeType.PERSIST, optional = false, orphanRemoval = true)
-  @JoinColumn(name = "account_id", nullable = false, unique = true)
-  @JdbcTypeCode(SqlTypes.UUID)
-  private Account account;
+  private String symbol;
 
   @Override
   public final boolean equals(final Object o) {
@@ -83,8 +73,8 @@ public class Client implements Serializable {
     if (thisEffectiveClass != oEffectiveClass) {
       return false;
     }
-    final Client client = (Client) o;
-    return getId() != null && Objects.equals(getId(), client.getId());
+    final Currency currency = (Currency) o;
+    return getCode() != null && Objects.equals(getCode(), currency.getCode());
   }
 
   @Override

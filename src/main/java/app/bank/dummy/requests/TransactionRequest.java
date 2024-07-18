@@ -3,7 +3,6 @@ package app.bank.dummy.requests;
 import app.bank.dummy.dtos.OpenTransactionDto;
 import app.bank.dummy.dtos.TransactionDto;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,5 +20,5 @@ public interface TransactionRequest {
 
   @PostMapping()
   @ResponseStatus(HttpStatus.CREATED)
-  TransactionDto createTransaction(@RequestBody @Valid @NotNull OpenTransactionDto openTransactionDto);
+  TransactionDto createTransaction(@RequestBody @Valid OpenTransactionDto openTransactionDto);
 }

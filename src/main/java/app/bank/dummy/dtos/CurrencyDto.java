@@ -6,10 +6,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.UUID;
 
 /**
- * DTO for {@link app.bank.dummy.models.Currency}
+ * DTO for {@link app.bank.dummy.entities.Currency}
  */
 public record CurrencyDto(@NotNull @Size(min = 3, max = 3) String code, @NotNull @NotEmpty @NotBlank String name, @NotNull @NotEmpty @NotBlank String symbol) implements Serializable {
 

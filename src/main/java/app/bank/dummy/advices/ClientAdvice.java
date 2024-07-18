@@ -22,6 +22,6 @@ public class ClientAdvice {
   @ExceptionHandler(ClientNotFoundException.class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public Map<String, Object> clientNotFoundHandler(final @NonNull WebRequest webRequest) {
-    return this.getAttributes().extractErrorAttributes(webRequest);
+    return this.getAttributes().extractErrorAttributes(webRequest, HttpStatus.NOT_FOUND);
   }
 }

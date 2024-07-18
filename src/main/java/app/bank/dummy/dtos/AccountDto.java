@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 /**
- * DTO for {@link app.bank.dummy.models.Account}
+ * DTO for {@link app.bank.dummy.entities.Account}
  */
 public record AccountDto(@NotNull UUID id, @NotNull CurrencyDto currency, @PositiveOrZero double balance) implements Serializable {
 
