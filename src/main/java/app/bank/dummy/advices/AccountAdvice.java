@@ -1,5 +1,6 @@
 package app.bank.dummy.advices;
 
+import app.bank.dummy.exceptions.AccountCloseException;
 import app.bank.dummy.exceptions.AccountNotFoundException;
 import java.util.Map;
 import lombok.AccessLevel;
@@ -23,6 +24,12 @@ public class AccountAdvice {
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public Map<String, Object> accountNotFoundHandler(final @NonNull WebRequest webRequest) {
     return this.getAttributes().extractErrorAttributes(webRequest, HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(AccountCloseException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public Map<String, Object> accountCloseHandler(final @NonNull WebRequest webRequest) {
+    return this.getAttributes().extractErrorAttributes(webRequest, HttpStatus.BAD_REQUEST);
   }
 
 }

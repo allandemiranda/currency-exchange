@@ -1,7 +1,9 @@
 package app.bank.dummy.entities;
 
+import app.bank.dummy.enums.ClientStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -31,5 +33,10 @@ public class ClientInfo implements Serializable {
   @Column(name = "last_name", nullable = false)
   @JdbcTypeCode(SqlTypes.VARCHAR)
   private String lastName;
+
+  @NotNull
+  @Enumerated
+  @Column(name = "client_status", nullable = false)
+  private ClientStatus status;
 
 }

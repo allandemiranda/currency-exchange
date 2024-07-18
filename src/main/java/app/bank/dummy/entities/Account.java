@@ -1,9 +1,11 @@
 package app.bank.dummy.entities;
 
 import app.bank.dummy.enums.AccountStatus;
+import app.bank.dummy.enums.Currency;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -52,9 +54,9 @@ public class Account implements Serializable {
   private Client client;
 
   @NotNull
-  @ManyToOne(optional = false)
-  @JoinColumn(name = "currency_id", nullable = false, updatable = false)
-  @JdbcTypeCode(SqlTypes.UUID)
+  @Enumerated(EnumType.STRING)
+  @Column(name = "currency", nullable = false, length = 3)
+  @JdbcTypeCode(SqlTypes.CHAR)
   private Currency currency;
 
   @PositiveOrZero(message = "{account.balance.validation.message}")
@@ -63,17 +65,17 @@ public class Account implements Serializable {
   private double balance;
 
   @NotNull
-  @Column(name = "status", nullable = false)
+  @Column(name = "account_status", nullable = false)
   private AccountStatus status;
 
   @NotNull
   @Exclude
-  @OneToMany(mappedBy = "debitInfo.debitAccount")
+  @OneToMany(mappedBy = "debitInfo.account")
   private Set<Transaction> debitTransactions = new LinkedHashSet<>();
 
   @NotNull
   @Exclude
-  @OneToMany(mappedBy = "creditInfo.creditAccount")
+  @OneToMany(mappedBy = "creditInfo.account")
   private Set<Transaction> creditTransactions = new LinkedHashSet<>();
 
   @Override

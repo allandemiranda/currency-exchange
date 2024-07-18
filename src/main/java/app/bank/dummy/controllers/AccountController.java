@@ -2,12 +2,15 @@ package app.bank.dummy.controllers;
 
 import app.bank.dummy.assemblers.AccountAssembler;
 import app.bank.dummy.assemblers.ClientAssembler;
-import app.bank.dummy.assemblers.CurrencyAssembler;
+import app.bank.dummy.assemblers.TransactionAssembler;
 import app.bank.dummy.dtos.AccountDto;
 import app.bank.dummy.dtos.ClientDto;
-import app.bank.dummy.dtos.CurrencyDto;
+import app.bank.dummy.dtos.NewTransactionDto;
+import app.bank.dummy.dtos.TransactionDto;
 import app.bank.dummy.requests.AccountRequest;
 import app.bank.dummy.services.AccountService;
+import app.bank.dummy.services.ClientService;
+import app.bank.dummy.services.TransactionService;
 import java.util.Collection;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -25,19 +28,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController implements AccountRequest {
 
   private final AccountService accountService;
+  private final ClientService clientService;
   private final AccountAssembler accountAssembler;
   private final ClientAssembler clientAssembler;
-  private final CurrencyAssembler currencyAssembler;
+  private final TransactionService transactionService;
+  private final TransactionAssembler transactionAssembler;
+
 
   @Override
   public CollectionModel<EntityModel<AccountDto>> getAccounts() {
-    final Collection<AccountDto> accountDtos = this.getAccountService().getAllAccounts();
+    final Collection<AccountDto> accountDtos = this.getAccountService().getOpenAccounts();
     return this.getAccountAssembler().toCollectionModel(accountDtos);
   }
 
   @Override
   public EntityModel<AccountDto> getAccount(final UUID id) {
-    final AccountDto accountDto = this.getAccountService().getAccountById(id);
+    final AccountDto accountDto = this.getAccountService().getAccount(id);
     return this.getAccountAssembler().toModel(accountDto);
   }
 
@@ -49,14 +55,26 @@ public class AccountController implements AccountRequest {
   }
 
   @Override
-  public EntityModel<ClientDto> getAccountsClient(final UUID id) {
-    final ClientDto clientDto = this.getAccountService().getClientByAccountId(id);
+  public EntityModel<ClientDto> getAccountClient(final UUID id) {
+    final ClientDto clientDto = this.getClientService().getClientByAccountId(id);
     return this.getClientAssembler().toModel(clientDto);
   }
 
   @Override
-  public EntityModel<CurrencyDto> getAccountsCurrency(final UUID id) {
-    final CurrencyDto currencyDto = this.getAccountService().getCurrencyByAccountId(id);
-    return this.getCurrencyAssembler().toModel(currencyDto);
+  public CollectionModel<EntityModel<TransactionDto>> getAccountTransactions(final UUID id) {
+    final Collection<TransactionDto> transactionDtos = this.getTransactionService().getTransactions(id);
+    return this.getTransactionAssembler().toCollectionModel(transactionDtos);
+  }
+
+  @Override
+  public EntityModel<TransactionDto> createAccountTransaction(final UUID id, final NewTransactionDto newTransactionDto) {
+    final TransactionDto transactionDto = this.getTransactionService().createTransaction(id, newTransactionDto);
+    return this.getTransactionAssembler().toModel(transactionDto);
+  }
+
+  @Override
+  public EntityModel<TransactionDto> getAccountTransaction(final UUID id, final UUID transactionId) {
+    final TransactionDto transactionDto = this.getTransactionService().getTransaction(id, transactionId);
+    return this.getTransactionAssembler().toModel(transactionDto);
   }
 }

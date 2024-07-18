@@ -2,6 +2,8 @@ package app.bank.dummy.mappers;
 
 import app.bank.dummy.dtos.TransactionDto;
 import app.bank.dummy.entities.Transaction;
+import app.bank.dummy.enums.TransactionType;
+import java.util.UUID;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants.ComponentModel;
@@ -10,9 +12,12 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = ComponentModel.SPRING)
 public interface TransactionMapper {
 
-  @Mapping(source = "creditAccount.currency.code", target = "creditAccountCurrencyCode")
-  @Mapping(source = "creditAccount.id", target = "creditAccountId")
-  @Mapping(source = "debitAccount.currency.code", target = "debitAccountCurrencyCode")
-  @Mapping(source = "debitAccount.id", target = "debitAccountId")
-  TransactionDto toDto(Transaction transaction);
+  @Mapping(target = "id", source = "transaction.id")
+  @Mapping(target = "dataTime", source = "transaction.dataTime")
+  @Mapping(target = "amount", source = "transaction.amount")
+  @Mapping(target = "taxRate", source = "transaction.taxRate")
+  @Mapping(target = "tmpBalance", source = "tmpBalance")
+  @Mapping(target = "type", source = "type")
+  @Mapping(target = "account", source = "account")
+  TransactionDto toDto(Transaction transaction, double tmpBalance, TransactionType type, UUID account);
 }

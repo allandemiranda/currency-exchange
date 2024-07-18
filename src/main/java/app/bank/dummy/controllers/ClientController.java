@@ -45,7 +45,7 @@ public class ClientController implements ClientRequest {
 
   @Override
   public EntityModel<ClientDto> getClient(final Long id) {
-    final ClientDto clientDto = this.getClientService().getClientById(id);
+    final ClientDto clientDto = this.getClientService().getClient(id);
     return this.getClientAssembler().toModel(clientDto);
   }
 
@@ -58,18 +58,18 @@ public class ClientController implements ClientRequest {
 
   @Override
   public void deleteClient(final Long id) {
-    this.getClientService().deleteClient(id);
+    this.getClientService().deactivateClient(id);
   }
 
   @Override
   public CollectionModel<EntityModel<AccountDto>> getClientAccounts(final Long id) {
-    final Collection<AccountDto> accountDtos = this.getClientService().getAccountsByClientId(id);
+    final Collection<AccountDto> accountDtos = this.getAccountService().getAccountsByClientId(id);
     return this.getAccountAssembler().toCollectionModel(accountDtos);
   }
 
   @Override
   public ResponseEntity<EntityModel<AccountDto>> createClientAccount(final Long id, final NewAccountDto newAccountDto) {
-    final AccountDto accountDto = this.getAccountService().createAccount(newAccountDto, id);
+    final AccountDto accountDto = this.getAccountService().createAccount(id, newAccountDto);
     final EntityModel<AccountDto> entityModel = this.getAccountAssembler().toModel(accountDto);
     return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
   }

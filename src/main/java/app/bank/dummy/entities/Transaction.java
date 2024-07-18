@@ -59,11 +59,11 @@ public class Transaction implements Serializable {
 
   @NotNull
   @Embedded
-  private TransactionInfo debitInfo;
+  private TransactionDebitInfo debitInfo;
 
   @NotNull
   @Embedded
-  private TransactionInfo creditInfo;
+  private TransactionCreditInfo creditInfo;
 
   @Override
   public final boolean equals(final Object o) {

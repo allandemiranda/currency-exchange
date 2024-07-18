@@ -1,5 +1,6 @@
 package app.bank.dummy.advices;
 
+import app.bank.dummy.exceptions.RateTaxUnavailableException;
 import app.bank.dummy.exceptions.TransactionNotFoundException;
 import java.util.Map;
 import lombok.AccessLevel;
@@ -23,6 +24,12 @@ public class TransactionAdvice {
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public Map<String, Object> transactionNotFoundHandler(final @NonNull WebRequest webRequest) {
     return this.getAttributes().extractErrorAttributes(webRequest, HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(RateTaxUnavailableException.class)
+  @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+  public Map<String, Object> rateTaxUnavailableHandler(final @NonNull WebRequest webRequest) {
+    return this.getAttributes().extractErrorAttributes(webRequest, HttpStatus.SERVICE_UNAVAILABLE);
   }
 
 }

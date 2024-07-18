@@ -11,17 +11,17 @@ import lombok.Data;
 
 @Data
 @Embeddable
-public class TransactionInfo implements Serializable {
+public class TransactionDebitInfo implements Serializable {
 
   @Serial
   private static final long serialVersionUID = -7863893130626747168L;
 
   @NotNull
   @ManyToOne(optional = false)
-  @JoinColumn(name = "account_id", nullable = false)
+  @JoinColumn(name = "debit_account_id", nullable = false)
   private Account account;
 
-  @Column(name = "tmp_balance", nullable = false, updatable = false)
+  @Column(name = "debit_tmp_balance", nullable = false)
   private double tmpBalance;
 
 }
