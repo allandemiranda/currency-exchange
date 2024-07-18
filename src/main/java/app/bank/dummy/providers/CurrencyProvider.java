@@ -4,7 +4,6 @@ import app.bank.dummy.dtos.CurrencyDto;
 import app.bank.dummy.dtos.UpdateCurrencyDto;
 import app.bank.dummy.entities.Currency;
 import app.bank.dummy.exceptions.CurrencyNotFoundException;
-import app.bank.dummy.exceptions.RateTaxUnavailableException;
 import app.bank.dummy.mappers.CurrencyMapper;
 import app.bank.dummy.repositories.CurrencyRepository;
 import app.bank.dummy.services.CurrencyService;
@@ -28,7 +27,7 @@ public class CurrencyProvider implements CurrencyService {
   private String key;
 
   @Override
-  public double getTaxRate(final @NonNull CurrencyDto debitCurrency, final @NonNull CurrencyDto creditCurrency) {
+  public double getTaxRate(final @NonNull String debitCurrencyCode, final @NonNull String creditCurrencyCode) {
 //    final String creditCode = creditCurrency.code();
 //    final String debitCode = debitCurrency.code();
 //
@@ -43,8 +42,8 @@ public class CurrencyProvider implements CurrencyService {
 //      Thread.currentThread().interrupt();
 //      throw new RateTaxUnavailableException();
 //    }
-    throw new RateTaxUnavailableException("ERRO TESTE");
-//    return 1.5;
+//    throw new RateTaxUnavailableException("ERRO TESTE");
+    return 1.5;
   }
 
   @Override

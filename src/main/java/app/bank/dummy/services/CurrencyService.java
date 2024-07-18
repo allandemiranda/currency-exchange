@@ -12,7 +12,7 @@ public interface CurrencyService {
 
   @Transactional(readOnly = true)
   @Positive
-  double getTaxRate(final @NonNull CurrencyDto debitCurrency, final @NonNull CurrencyDto creditCurrency);
+  double getTaxRate(final @NonNull String debitCurrencyCode, final @NonNull String creditCurrencyCode);
 
   @Transactional(readOnly = true)
   @NotNull
