@@ -6,6 +6,7 @@ import app.bank.dummy.dtos.UpdateClientDto;
 import app.bank.dummy.entities.Account;
 import app.bank.dummy.entities.Client;
 import app.bank.dummy.enums.AccountStatus;
+import app.bank.dummy.enums.ClientStatus;
 import app.bank.dummy.exceptions.AccountNotFoundException;
 import app.bank.dummy.exceptions.ClientNotFoundException;
 import app.bank.dummy.mappers.ClientMapper;
@@ -44,7 +45,8 @@ public class ClientProvider implements ClientService {
   @Override
   public ClientDto createClient(final NewClientDto newClientDto) {
     final Client newClient = this.getClientMapper().toEntity(newClientDto);
-    final Client savedClient = this.getClientRepository().saveAndFlush(newClient);
+    newClient.getInfo().setStatus(ClientStatus.ACTIVATE);
+    final Client savedClient = this.getClientRepository().save(newClient);
     return this.getClientMapper().toDto(savedClient);
   }
 
@@ -52,7 +54,7 @@ public class ClientProvider implements ClientService {
   public ClientDto updateClient(final Long id, final @NotNull UpdateClientDto updateClientDto) {
     final Client client = this.getClientRepository().findById(id).orElseThrow(() -> new ClientNotFoundException(id));
     final Client updatedClient = this.getClientMapper().partialUpdate(updateClientDto, client);
-    final Client savedClient = this.getClientRepository().saveAndFlush(updatedClient);
+    final Client savedClient = this.getClientRepository().save(updatedClient);
     return this.getClientMapper().toDto(savedClient);
   }
 
