@@ -9,5 +9,5 @@ import java.io.Serializable;
 public record UpdateCurrencyDto(String name, String symbol) implements Serializable {
 
   @Serial
-  private static final long serialVersionUID = -2383465595364702141L;
+  private static final long serialVersionUID = -5237485339570325019L;
 }

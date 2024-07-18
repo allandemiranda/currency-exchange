@@ -1,7 +1,7 @@
 package app.bank.dummy.assemblers;
 
-import app.bank.dummy.controllers.CurrencyController;
 import app.bank.dummy.dtos.CurrencyDto;
+import app.bank.dummy.requests.CurrencyRequest;
 import lombok.NonNull;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
@@ -13,7 +13,7 @@ public class CurrencyAssembler implements RepresentationModelAssembler<CurrencyD
 
   @Override
   public @NonNull EntityModel<CurrencyDto> toModel(final @NonNull CurrencyDto currencyDto) {
-    return EntityModel.of(currencyDto, WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CurrencyController.class).getCurrencyByCode(currencyDto.code())).withSelfRel(),
-        WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CurrencyController.class).getCurrencies()).withRel("currencies"));
+    return EntityModel.of(currencyDto, WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CurrencyRequest.class).getCurrency(currencyDto.code())).withSelfRel(),
+        WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CurrencyRequest.class).getCurrencies()).withRel("currencies"));
   }
 }

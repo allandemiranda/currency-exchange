@@ -1,6 +1,7 @@
 package app.bank.dummy.requests;
 
 import app.bank.dummy.dtos.CurrencyDto;
+import app.bank.dummy.dtos.NewCurrencyDto;
 import app.bank.dummy.dtos.UpdateCurrencyDto;
 import jakarta.validation.Valid;
 import org.springframework.hateoas.CollectionModel;
@@ -20,7 +21,7 @@ public interface CurrencyRequest {
 
   @GetMapping("/{code}")
   @ResponseStatus(HttpStatus.OK)
-  EntityModel<CurrencyDto> getCurrencyByCode(final @PathVariable String code);
+  EntityModel<CurrencyDto> getCurrency(final @PathVariable String code);
 
   @GetMapping()
   @ResponseStatus(HttpStatus.OK)
@@ -28,9 +29,9 @@ public interface CurrencyRequest {
 
   @PostMapping()
   @ResponseStatus(HttpStatus.CREATED)
-  ResponseEntity<EntityModel<CurrencyDto>> createCurrency(final @RequestBody @Valid CurrencyDto currencyDto);
+  ResponseEntity<EntityModel<CurrencyDto>> createCurrency(final @RequestBody @Valid NewCurrencyDto newCurrencyDto);
 
   @PutMapping("/{code}")
   @ResponseStatus(HttpStatus.CREATED)
-  ResponseEntity<EntityModel<CurrencyDto>> updateCurrencyByCode(final @PathVariable String code, final @RequestBody @Valid UpdateCurrencyDto updateCurrencyDto);
+  ResponseEntity<EntityModel<CurrencyDto>> updateCurrency(final @PathVariable String code, final @RequestBody @Valid UpdateCurrencyDto updateCurrencyDto);
 }

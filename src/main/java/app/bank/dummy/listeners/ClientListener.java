@@ -11,7 +11,7 @@ public class ClientListener {
 
   @PrePersist
   public void prePersist(final @NonNull Client client) {
-    final String passwordEncrypted = DigestUtils.md5DigestAsHex(client.getPassword().getBytes());
-    client.setPassword(passwordEncrypted);
+    final String passwordEncrypted = DigestUtils.md5DigestAsHex(client.getCredentials().getPassword().getBytes());
+    client.getCredentials().setPassword(passwordEncrypted);
   }
 }

@@ -1,11 +1,15 @@
 package app.bank.dummy.requests;
 
-import app.bank.dummy.dtos.OpenTransactionDto;
+import app.bank.dummy.dtos.NewTransactionDto;
 import app.bank.dummy.dtos.TransactionDto;
 import jakarta.validation.Valid;
-import java.util.Collection;
+import java.util.UUID;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,9 +20,21 @@ public interface TransactionRequest {
 
   @GetMapping()
   @ResponseStatus(HttpStatus.OK)
-  Collection<TransactionDto> getTransactions();
+  CollectionModel<EntityModel<TransactionDto>> getTransactions();
 
   @PostMapping()
   @ResponseStatus(HttpStatus.CREATED)
-  TransactionDto createTransaction(@RequestBody @Valid OpenTransactionDto openTransactionDto);
+  ResponseEntity<EntityModel<TransactionDto>> createTransaction(@RequestBody @Valid NewTransactionDto newTransactionDto);
+
+  @GetMapping("/{id}")
+  @ResponseStatus(HttpStatus.OK)
+  EntityModel<TransactionDto> getTransaction(@PathVariable final UUID id);
+
+  @GetMapping("/{id}/debitAccount")
+  @ResponseStatus(HttpStatus.OK)
+  CollectionModel<EntityModel<TransactionDto>> getTransactionDebitAccounts(@PathVariable final UUID id);
+
+  @GetMapping("/{id}/creditAccount")
+  @ResponseStatus(HttpStatus.OK)
+  CollectionModel<EntityModel<TransactionDto>> getTransactionCreditAccounts(@PathVariable final UUID id);
 }

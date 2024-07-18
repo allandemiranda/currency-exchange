@@ -16,6 +16,18 @@ public interface TransactionService {
 
   @Transactional(readOnly = true)
   @NotNull
+  TransactionDto getTransaction(final @NotNull UUID transactionId);
+
+  @Transactional(readOnly = true)
+  @NotNull
   Collection<@NotNull TransactionDto> getAllTransactions();
+
+  @Transactional(readOnly = true)
+  @NotNull
+  Collection<@NotNull TransactionDto> getTransactionsByDebitAccountId(final @NotNull UUID debitAccountId);
+
+  @Transactional(readOnly = true)
+  @NotNull
+  Collection<@NotNull TransactionDto> getTransactionsByCreditAccountId(final @NotNull UUID creditAccountId);
 
 }

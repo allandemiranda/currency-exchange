@@ -1,6 +1,7 @@
 package app.bank.dummy.mappers;
 
 import app.bank.dummy.dtos.CurrencyDto;
+import app.bank.dummy.dtos.NewCurrencyDto;
 import app.bank.dummy.dtos.UpdateCurrencyDto;
 import app.bank.dummy.entities.Currency;
 import org.mapstruct.BeanMapping;
@@ -19,4 +20,6 @@ public interface CurrencyMapper {
 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   Currency partialUpdate(UpdateCurrencyDto updateCurrencyDto, @MappingTarget Currency currency);
+
+  Currency toEntity(NewCurrencyDto newCurrencyDto);
 }

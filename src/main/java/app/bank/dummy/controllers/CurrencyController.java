@@ -2,9 +2,11 @@ package app.bank.dummy.controllers;
 
 import app.bank.dummy.assemblers.CurrencyAssembler;
 import app.bank.dummy.dtos.CurrencyDto;
+import app.bank.dummy.dtos.NewCurrencyDto;
 import app.bank.dummy.dtos.UpdateCurrencyDto;
 import app.bank.dummy.requests.CurrencyRequest;
 import app.bank.dummy.services.CurrencyService;
+import jakarta.validation.Valid;
 import java.util.Collection;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -25,7 +27,7 @@ public class CurrencyController implements CurrencyRequest {
   private final CurrencyAssembler currencyAssembler;
 
   @Override
-  public EntityModel<CurrencyDto> getCurrencyByCode(@NonNull final String code) {
+  public EntityModel<CurrencyDto> getCurrency(@NonNull final String code) {
     final CurrencyDto currency = this.getCurrencyService().getCurrencyByCode(code);
     return this.getCurrencyAssembler().toModel(currency);
   }
@@ -37,15 +39,15 @@ public class CurrencyController implements CurrencyRequest {
   }
 
   @Override
-  public ResponseEntity<EntityModel<CurrencyDto>> createCurrency(final CurrencyDto currencyDto) {
-    final CurrencyDto currency = this.getCurrencyService().createCurrency(currencyDto);
+  public ResponseEntity<EntityModel<CurrencyDto>> createCurrency(final @Valid NewCurrencyDto newCurrencyDto) {
+    final CurrencyDto currency = this.getCurrencyService().createCurrency(newCurrencyDto);
     final EntityModel<CurrencyDto> entityModel = this.getCurrencyAssembler().toModel(currency);
     return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
   }
 
   @Override
-  public ResponseEntity<EntityModel<CurrencyDto>> updateCurrencyByCode(final String code, final UpdateCurrencyDto updateCurrencyDto) {
-    final CurrencyDto currency = this.getCurrencyService().updateCurrencyByCode(code, updateCurrencyDto);
+  public ResponseEntity<EntityModel<CurrencyDto>> updateCurrency(final String code, final UpdateCurrencyDto updateCurrencyDto) {
+    final CurrencyDto currency = this.getCurrencyService().updateCurrency(code, updateCurrencyDto);
     final EntityModel<CurrencyDto> entityModel = this.getCurrencyAssembler().toModel(currency);
     return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
   }

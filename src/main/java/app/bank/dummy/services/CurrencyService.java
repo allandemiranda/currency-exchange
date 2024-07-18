@@ -1,10 +1,12 @@
 package app.bank.dummy.services;
 
 import app.bank.dummy.dtos.CurrencyDto;
+import app.bank.dummy.dtos.NewCurrencyDto;
 import app.bank.dummy.dtos.UpdateCurrencyDto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.util.Collection;
+import java.util.UUID;
 import lombok.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,7 +14,7 @@ public interface CurrencyService {
 
   @Transactional(readOnly = true)
   @Positive
-  double getTaxRate(final @NonNull String debitCurrencyCode, final @NonNull String creditCurrencyCode);
+  double getTaxRate(final @NonNull UUID debitAccountId, final @NonNull UUID creditAccountId);
 
   @Transactional(readOnly = true)
   @NotNull
@@ -24,9 +26,9 @@ public interface CurrencyService {
 
   @Transactional
   @NotNull
-  CurrencyDto createCurrency(final @NotNull CurrencyDto currencyDto);
+  CurrencyDto createCurrency(final @NotNull NewCurrencyDto newCurrencyDto);
 
   @Transactional
   @NotNull
-  CurrencyDto updateCurrencyByCode(final @NotNull String code, final @NonNull UpdateCurrencyDto updateCurrencyDto);
+  CurrencyDto updateCurrency(final @NotNull String code, final @NonNull UpdateCurrencyDto updateCurrencyDto);
 }

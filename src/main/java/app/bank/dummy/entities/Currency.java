@@ -1,9 +1,9 @@
 package app.bank.dummy.entities;
 
+import app.bank.dummy.listeners.CurrencyListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -13,7 +13,6 @@ import jakarta.validation.constraints.Size;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
-import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -27,6 +26,7 @@ import org.hibernate.type.SqlTypes;
 @ToString
 @RequiredArgsConstructor
 @Entity
+@EntityListeners(CurrencyListener.class)
 @Table(name = "currency")
 public class Currency implements Serializable {
 
@@ -35,13 +35,7 @@ public class Currency implements Serializable {
 
   @Id
   @NotNull
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  @Column(name = "id", nullable = false, updatable = false, unique = true)
-  @JdbcTypeCode(SqlTypes.UUID)
-  private UUID id;
-
-  @NotNull
-  @Size(min = 3, max = 3)
+  @Size(min = 3, max = 3, message = "{currency.code.validation.message}")
   @Column(name = "code", nullable = false, length = 3, unique = true)
   @JdbcTypeCode(SqlTypes.CHAR)
   private String code;

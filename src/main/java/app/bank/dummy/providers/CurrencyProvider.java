@@ -1,14 +1,18 @@
 package app.bank.dummy.providers;
 
 import app.bank.dummy.dtos.CurrencyDto;
+import app.bank.dummy.dtos.NewCurrencyDto;
 import app.bank.dummy.dtos.UpdateCurrencyDto;
 import app.bank.dummy.entities.Currency;
+import app.bank.dummy.exceptions.AccountNotFoundException;
 import app.bank.dummy.exceptions.CurrencyNotFoundException;
 import app.bank.dummy.mappers.CurrencyMapper;
+import app.bank.dummy.repositories.AccountRepository;
 import app.bank.dummy.repositories.CurrencyRepository;
 import app.bank.dummy.services.CurrencyService;
 import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
@@ -22,14 +26,15 @@ import org.springframework.stereotype.Service;
 public class CurrencyProvider implements CurrencyService {
 
   private final CurrencyRepository currencyRepository;
+  private final AccountRepository accountRepository;
   private final CurrencyMapper currencyMapper;
   @Value("${external-api.key}")
   private String key;
 
   @Override
-  public double getTaxRate(final @NonNull String debitCurrencyCode, final @NonNull String creditCurrencyCode) {
-//    final String creditCode = creditCurrency.code();
-//    final String debitCode = debitCurrency.code();
+  public double getTaxRate(final UUID debitAccountId, final UUID creditAccountId) {
+    final String debitCode = this.getAccountRepository().findById(debitAccountId).orElseThrow(() -> new AccountNotFoundException(debitAccountId)).getCurrency().getCode();
+    final String creditCode = this.getAccountRepository().findById(creditAccountId).orElseThrow(() -> new AccountNotFoundException(creditAccountId)).getCurrency().getCode();
 //
 //    final String url = "https://v6.exchangerate-api.com/v6/".concat(key).concat("/latest/").concat(creditCode);
 //    final HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).method("GET", HttpRequest.BodyPublishers.noBody()).build();
@@ -48,7 +53,7 @@ public class CurrencyProvider implements CurrencyService {
 
   @Override
   public CurrencyDto getCurrencyByCode(final @NonNull String code) {
-    final Currency currency = this.getCurrencyRepository().findByCode(code).orElseThrow(() -> new CurrencyNotFoundException(code));
+    final Currency currency = this.getCurrencyRepository().findById(code).orElseThrow(() -> new CurrencyNotFoundException(code));
     return this.getCurrencyMapper().toDto(currency);
   }
 
@@ -59,15 +64,15 @@ public class CurrencyProvider implements CurrencyService {
   }
 
   @Override
-  public CurrencyDto createCurrency(final @NotNull CurrencyDto currencyDto) {
-    final Currency currencyEntity = this.getCurrencyMapper().toEntity(currencyDto);
-    final Currency savedCurrency = this.getCurrencyRepository().save(currencyEntity);
+  public CurrencyDto createCurrency(final @NotNull NewCurrencyDto newCurrencyDto) {
+    final Currency newCurrency = this.getCurrencyMapper().toEntity(newCurrencyDto);
+    final Currency savedCurrency = this.getCurrencyRepository().save(newCurrency);
     return this.getCurrencyMapper().toDto(savedCurrency);
   }
 
   @Override
-  public @NotNull CurrencyDto updateCurrencyByCode(final String code, final @NonNull UpdateCurrencyDto updateCurrencyDto) {
-    final Currency currency = this.getCurrencyRepository().findByCode(code).orElseThrow(() -> new CurrencyNotFoundException(code));
+  public @NotNull CurrencyDto updateCurrency(final String code, final @NonNull UpdateCurrencyDto updateCurrencyDto) {
+    final Currency currency = this.getCurrencyRepository().findById(code).orElseThrow(() -> new CurrencyNotFoundException(code));
     final Currency currencyToUpdate = this.getCurrencyMapper().partialUpdate(updateCurrencyDto, currency);
     final Currency savedCurrency = this.getCurrencyRepository().save(currencyToUpdate);
     return this.getCurrencyMapper().toDto(savedCurrency);

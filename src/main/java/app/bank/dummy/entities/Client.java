@@ -1,21 +1,24 @@
 package app.bank.dummy.entities;
 
+import app.bank.dummy.listeners.ClientListener;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.LinkedHashSet;
 import java.util.Objects;
+import java.util.Set;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -30,6 +33,7 @@ import org.hibernate.type.SqlTypes;
 @ToString
 @RequiredArgsConstructor
 @Entity
+@EntityListeners(ClientListener.class)
 @Table(name = "client")
 public class Client implements Serializable {
 
@@ -44,31 +48,16 @@ public class Client implements Serializable {
   private Long id;
 
   @NotNull
-  @NotEmpty
-  @NotBlank
-  @Column(name = "name", nullable = false)
-  @JdbcTypeCode(SqlTypes.VARCHAR)
-  private String name;
+  @Embedded
+  private ClientInfo info;
 
   @NotNull
-  @NotEmpty
-  @NotBlank
-  @Column(name = "login", nullable = false, unique = true)
-  @JdbcTypeCode(SqlTypes.VARCHAR)
-  private String login;
+  @Embedded
+  private ClientCredentials credentials;
 
   @Exclude
-  @NotNull
-  @Size(min = 5)
-  @Column(name = "password", nullable = false)
-  @JdbcTypeCode(SqlTypes.VARCHAR)
-  private String password;
-
-  @NotNull
-  @OneToOne(cascade = CascadeType.PERSIST, optional = false, orphanRemoval = true)
-  @JoinColumn(name = "account_id", nullable = false, unique = true)
-  @JdbcTypeCode(SqlTypes.UUID)
-  private Account account;
+  @OneToMany(mappedBy = "client")
+  private Set<Account> accounts = new LinkedHashSet<>();
 
   @Override
   public final boolean equals(final Object o) {
