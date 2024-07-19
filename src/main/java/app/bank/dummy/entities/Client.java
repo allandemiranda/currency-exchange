@@ -1,7 +1,6 @@
 package app.bank.dummy.entities;
 
 import app.bank.dummy.listeners.ClientListener;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -9,10 +8,9 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
@@ -34,7 +32,8 @@ import org.hibernate.type.SqlTypes;
 @RequiredArgsConstructor
 @Entity
 @EntityListeners(ClientListener.class)
-@Table(name = "client")
+@Table(name = "client", uniqueConstraints = {@UniqueConstraint(name = "uc_client_id_login_password", columnNames = {"id", "login", "password"}),
+    @UniqueConstraint(name = "uc_client_login_password", columnNames = {"login", "password"})})
 public class Client implements Serializable {
 
   @Serial

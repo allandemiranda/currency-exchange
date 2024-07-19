@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.io.Serial;
@@ -31,7 +32,7 @@ import org.hibernate.type.SqlTypes;
 @ToString
 @RequiredArgsConstructor
 @Entity
-@Table(name = "account")
+@Table(name = "account", uniqueConstraints = {@UniqueConstraint(name = "uc_account_id_client_id", columnNames = {"id", "client_id", "currency"})})
 public class Account implements Serializable {
 
   @Serial
