@@ -1,11 +1,14 @@
 package app.bank.dummy.requests;
 
-import app.bank.dummy.dtos.AccountDto;
+import app.bank.dummy.dtos.ClientAccountDto;
 import app.bank.dummy.dtos.ClientDto;
+import app.bank.dummy.dtos.ClientTransactionDto;
 import app.bank.dummy.dtos.NewAccountDto;
 import app.bank.dummy.dtos.NewClientDto;
+import app.bank.dummy.dtos.NewTransactionDto;
 import app.bank.dummy.dtos.UpdateClientDto;
 import jakarta.validation.Valid;
+import java.util.UUID;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
@@ -30,24 +33,45 @@ public interface ClientRequest {
   @ResponseStatus(HttpStatus.CREATED)
   ResponseEntity<EntityModel<ClientDto>> createClient(final @RequestBody @Valid NewClientDto newClientDto);
 
-  @GetMapping("/{id}")
+  @GetMapping("/{clientId}")
   @ResponseStatus(HttpStatus.OK)
-  EntityModel<ClientDto> getClient(final @PathVariable Long id);
+  EntityModel<ClientDto> getClient(final @PathVariable Long clientId);
 
-  @PutMapping("/{id}")
+  @PutMapping("/{clientId}")
   @ResponseStatus(HttpStatus.CREATED)
-  ResponseEntity<EntityModel<ClientDto>> updateClient(final @PathVariable Long id, final @RequestBody @Valid UpdateClientDto updateClientDto);
+  ResponseEntity<EntityModel<ClientDto>> updateClient(final @PathVariable Long clientId, final @RequestBody @Valid UpdateClientDto updateClientDto);
 
-  @DeleteMapping("/{id}")
+  @DeleteMapping("/{clientId}")
   @ResponseStatus(HttpStatus.OK)
-  void deleteClient(final @PathVariable Long id);
+  void deleteClient(final @PathVariable Long clientId);
 
-  @GetMapping("/{id}/accounts")
+  @GetMapping("/{clientId}/accounts")
   @ResponseStatus(HttpStatus.OK)
-  CollectionModel<EntityModel<AccountDto>> getClientAccounts(final @PathVariable Long id);
+  CollectionModel<EntityModel<ClientAccountDto>> getClientAccounts(final @PathVariable Long clientId);
 
-  @PostMapping("/{id}/accounts")
+  @PostMapping("/{clientId}/accounts")
   @ResponseStatus(HttpStatus.CREATED)
-  ResponseEntity<EntityModel<AccountDto>> createClientAccount(final @PathVariable Long id, final @RequestBody @Valid NewAccountDto newAccountDto);
+  ResponseEntity<EntityModel<ClientAccountDto>> createClientAccount(final @PathVariable Long clientId, final @RequestBody @Valid NewAccountDto newAccountDto);
+
+  @GetMapping("/{clientId}/accounts/{accountId}")
+  @ResponseStatus(HttpStatus.OK)
+  EntityModel<ClientAccountDto> getClientAccount(final @PathVariable Long clientId, final @PathVariable UUID accountId);
+
+  @PutMapping("/{clientId}/accounts/{accountId}")
+  @ResponseStatus(HttpStatus.OK)
+  ResponseEntity<EntityModel<ClientAccountDto>> closeClientAccount(final @PathVariable Long clientId, final @PathVariable UUID accountId);
+
+  @GetMapping("/{clientId}/accounts/{accountId}/transactions")
+  @ResponseStatus(HttpStatus.OK)
+  CollectionModel<EntityModel<ClientTransactionDto>> getClientAccountTransactions(final @PathVariable Long clientId, final @PathVariable UUID accountId);
+
+  @PostMapping("/{clientId}/accounts/{accountId}/transactions")
+  @ResponseStatus(HttpStatus.OK)
+  ResponseEntity<EntityModel<ClientTransactionDto>> createClientAccountTransaction(final @PathVariable Long clientId, final @PathVariable UUID accountId,
+      final @RequestBody NewTransactionDto newTransactionDto);
+
+  @GetMapping("/{clientId}/accounts/{accountId}/transactions/{transactionId}")
+  @ResponseStatus(HttpStatus.OK)
+  EntityModel<ClientTransactionDto> getClientAccountTransaction(final @PathVariable Long clientId, final @PathVariable UUID accountId, @PathVariable final UUID transactionId);
 
 }

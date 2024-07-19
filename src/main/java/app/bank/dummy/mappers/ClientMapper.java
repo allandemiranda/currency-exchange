@@ -27,6 +27,8 @@ public interface ClientMapper {
   @Mapping(target = "credentials.password", source = "password")
   Client toEntity(NewClientDto newClientDto);
 
+  @Mapping(source = "firstName", target = "info.firstName")
+  @Mapping(source = "lastName", target = "info.lastName")
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   Client partialUpdate(UpdateClientDto updateClientDto, @MappingTarget Client client);
 

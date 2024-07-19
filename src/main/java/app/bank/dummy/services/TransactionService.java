@@ -1,5 +1,6 @@
 package app.bank.dummy.services;
 
+import app.bank.dummy.dtos.ClientTransactionDto;
 import app.bank.dummy.dtos.NewTransactionDto;
 import app.bank.dummy.dtos.TransactionDto;
 import jakarta.validation.constraints.NotNull;
@@ -11,14 +12,18 @@ public interface TransactionService {
 
   @Transactional(readOnly = true)
   @NotNull
-  Collection<@NotNull TransactionDto> getTransactions(final @NotNull UUID accountId);
+  Collection<@NotNull TransactionDto> getTransactions();
 
   @Transactional(readOnly = true)
   @NotNull
-  TransactionDto getTransaction(final @NotNull UUID accountId, final @NotNull UUID id);
+  Collection<@NotNull ClientTransactionDto> getClientAccountTransactions(final @NotNull Long clientId, final @NotNull UUID accountId);
+
+  @Transactional(readOnly = true)
+  @NotNull
+  ClientTransactionDto getClientAccountTransaction(final @NotNull Long clientId, final @NotNull UUID accountId, final @NotNull UUID transactionId);
 
   @Transactional
   @NotNull
-  TransactionDto createTransaction(final @NotNull UUID accountId, final @NotNull NewTransactionDto newTransactionDto);
+  ClientTransactionDto createClientAccountTransaction(final @NotNull Long clientId, final @NotNull UUID accountId, final @NotNull NewTransactionDto newTransactionDto);
 
 }

@@ -12,7 +12,7 @@ public interface ClientService {
 
   @Transactional(readOnly = true)
   @NotNull
-  ClientDto getClient(final @NotNull Long id);
+  ClientDto getClient(final @NotNull Long clientId);
 
   @Transactional(readOnly = true)
   @NotNull
@@ -24,10 +24,10 @@ public interface ClientService {
 
   @Transactional
   @NotNull
-  ClientDto updateClient(final @NotNull Long id, @NotNull final UpdateClientDto updateClientDto);
+  ClientDto updateClient(final @NotNull Long clientId, @NotNull final UpdateClientDto updateClientDto);
 
   @Transactional
-  ClientDto deactivateClient(final @NotNull Long id);
+  ClientDto deactivateClient(final @NotNull Long clientId);
 
   @Transactional(readOnly = true)
   @NotNull

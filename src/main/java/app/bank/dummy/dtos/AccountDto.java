@@ -8,9 +8,9 @@ import java.util.UUID;
 /**
  * DTO for {@link app.bank.dummy.entities.Account}
  */
-public record AccountDto(UUID id, double balance, AccountStatus status) implements Serializable {
+public record AccountDto(UUID id, AccountStatus status) implements Serializable {
 
   @Serial
-  private static final long serialVersionUID = -6556668595556601603L;
+  private static final long serialVersionUID = -7807811461714587265L;
 
 }

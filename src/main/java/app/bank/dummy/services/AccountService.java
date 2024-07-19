@@ -1,6 +1,7 @@
 package app.bank.dummy.services;
 
 import app.bank.dummy.dtos.AccountDto;
+import app.bank.dummy.dtos.ClientAccountDto;
 import app.bank.dummy.dtos.NewAccountDto;
 import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
@@ -11,22 +12,26 @@ public interface AccountService {
 
   @Transactional(readOnly = true)
   @NotNull
-  AccountDto getAccount(final @NotNull UUID id);
+  AccountDto getAccount(final @NotNull UUID accountId);
 
   @Transactional(readOnly = true)
   @NotNull
-  Collection<@NotNull AccountDto> getOpenAccounts();
-
-  @Transactional
-  @NotNull
-  AccountDto closeAccount(final @NotNull UUID id);
+  Collection<@NotNull AccountDto> getAccounts();
 
   @Transactional(readOnly = true)
   @NotNull
-  Collection<@NotNull AccountDto> getAccountsByClientId(final @NotNull Long clientId);
+  ClientAccountDto getClientAccount(final @NotNull Long clientId, final @NotNull UUID accountId);
 
   @Transactional
   @NotNull
-  AccountDto createAccount(final @NotNull Long clientId, final @NotNull NewAccountDto newAccountDto);
+  ClientAccountDto closeClientAccount(final @NotNull Long clientId, final @NotNull UUID accountId);
+
+  @Transactional(readOnly = true)
+  @NotNull
+  Collection<@NotNull ClientAccountDto> getClientAccounts(final @NotNull Long clientId);
+
+  @Transactional
+  @NotNull
+  ClientAccountDto createClientAccount(final @NotNull Long clientId, final @NotNull NewAccountDto newAccountDto);
 
 }

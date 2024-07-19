@@ -31,8 +31,8 @@ public class ClientProvider implements ClientService {
   private final ClientMapper clientMapper;
 
   @Override
-  public ClientDto getClient(final Long id) {
-    final Client client = this.getClientRepository().findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+  public ClientDto getClient(final Long clientId) {
+    final Client client = this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
     return this.getClientMapper().toDto(client);
   }
 
@@ -51,16 +51,16 @@ public class ClientProvider implements ClientService {
   }
 
   @Override
-  public ClientDto updateClient(final Long id, final @NotNull UpdateClientDto updateClientDto) {
-    final Client client = this.getClientRepository().findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+  public ClientDto updateClient(final Long clientId, final @NotNull UpdateClientDto updateClientDto) {
+    final Client client = this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
     final Client updatedClient = this.getClientMapper().partialUpdate(updateClientDto, client);
     final Client savedClient = this.getClientRepository().save(updatedClient);
     return this.getClientMapper().toDto(savedClient);
   }
 
   @Override
-  public ClientDto deactivateClient(final Long id) {
-    final Client client = this.getClientRepository().findById(id).orElseThrow(() -> new ClientNotFoundException(id));
+  public ClientDto deactivateClient(final Long clientId) {
+    final Client client = this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
     final Collection<Account> accounts = client.getAccounts().stream().peek(account -> account.setStatus(AccountStatus.CLOSE)).toList();
     this.getAccountRepository().saveAll(accounts);
     return this.getClientMapper().toDto(client);
