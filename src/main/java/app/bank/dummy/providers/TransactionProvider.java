@@ -12,6 +12,7 @@ import app.bank.dummy.enums.AccountStatus;
 import app.bank.dummy.enums.Currency;
 import app.bank.dummy.enums.TransactionType;
 import app.bank.dummy.exceptions.AccountCloseException;
+import app.bank.dummy.exceptions.AccountFondsInsuffisantException;
 import app.bank.dummy.exceptions.AccountNotFoundException;
 import app.bank.dummy.exceptions.ClientNotFoundException;
 import app.bank.dummy.exceptions.TransactionNotFoundException;
@@ -52,10 +53,10 @@ public class TransactionProvider implements TransactionService {
   public Collection<@NotNull ClientTransactionDto> getClientAccountTransactions(final Long clientId, final UUID accountId) {
     final Client client = this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
     final Account account = client.getAccounts().stream().filter(acc -> acc.getId().equals(accountId)).findFirst().orElseThrow(() -> new AccountNotFoundException(accountId));
-    final Collection<ClientTransactionDto> debitClientTransactionDtos = account.getDebitTransactions().stream().map(
+    final Collection<ClientTransactionDto> debitClientTransactionDtos = this.getTransactionRepository().findByDebitInfo_Account_Id(account.getId()).stream().map(
             transaction -> this.getTransactionMapper().toDto(transaction, transaction.getDebitInfo().getTmpBalance(), TransactionType.DEBIT, transaction.getCreditInfo().getAccount().getId()))
         .toList();
-    final Collection<ClientTransactionDto> creditClientTransactionDtos = account.getDebitTransactions().stream().map(
+    final Collection<ClientTransactionDto> creditClientTransactionDtos = this.getTransactionRepository().findByCreditInfo_Account_Id(account.getId()).stream().map(
             transaction -> this.getTransactionMapper().toDto(transaction, transaction.getCreditInfo().getTmpBalance(), TransactionType.CREDIT, transaction.getDebitInfo().getAccount().getId()))
         .toList();
     return Stream.concat(debitClientTransactionDtos.stream(), creditClientTransactionDtos.stream()).sorted(Comparator.comparing(ClientTransactionDto::dataTime)).toList();
@@ -82,7 +83,11 @@ public class TransactionProvider implements TransactionService {
     if (AccountStatus.CLOSE.equals(debit.getStatus())) {
       throw new AccountCloseException(debit.getId());
     }
-    debit.setBalance(debit.getBalance() - newTransactionDto.amount());
+    final double newDebitBalance = debit.getBalance() - newTransactionDto.amount();
+    if (newDebitBalance < 0D) {
+      throw new AccountFondsInsuffisantException(accountId);
+    }
+    debit.setBalance(newDebitBalance);
     final Account debitUpdate = this.getAccountRepository().save(debit);
 
     final Account credit = this.getAccountRepository().findById(newTransactionDto.creditAccountId()).orElseThrow(() -> new AccountNotFoundException(newTransactionDto.creditAccountId()));
@@ -102,9 +107,9 @@ public class TransactionProvider implements TransactionService {
     transactionDebitInfo.setAccount(debitUpdate);
     transaction.setDebitInfo(transactionDebitInfo);
 
-    final TransactionCreditInfo creditInfo = new TransactionCreditInfo();
-    creditInfo.setAccount(creditUpdate);
-    transaction.setCreditInfo(creditInfo);
+    final TransactionCreditInfo transactionCreditInfo = new TransactionCreditInfo();
+    transactionCreditInfo.setAccount(creditUpdate);
+    transaction.setCreditInfo(transactionCreditInfo);
 
     final Transaction saved = this.getTransactionRepository().save(transaction);
     return this.getTransactionMapper().toDto(saved, debitUpdate.getBalance(), TransactionType.DEBIT, credit.getId());

@@ -1,5 +1,6 @@
 package app.bank.dummy.advices;
 
+import app.bank.dummy.exceptions.AccountFondsInsuffisantException;
 import app.bank.dummy.exceptions.RateTaxUnavailableException;
 import app.bank.dummy.exceptions.TransactionNotFoundException;
 import java.util.Map;
@@ -30,6 +31,12 @@ public class TransactionAdvice {
   @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
   public Map<String, Object> rateTaxUnavailableHandler(final @NonNull WebRequest webRequest) {
     return this.getAttributes().extractErrorAttributes(webRequest, HttpStatus.SERVICE_UNAVAILABLE);
+  }
+
+  @ExceptionHandler(AccountFondsInsuffisantException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public Map<String, Object> foundsInsuffisantHandler(final @NonNull WebRequest webRequest) {
+    return this.getAttributes().extractErrorAttributes(webRequest, HttpStatus.BAD_REQUEST);
   }
 
 }
