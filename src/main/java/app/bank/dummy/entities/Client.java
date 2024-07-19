@@ -56,6 +56,7 @@ public class Client implements Serializable {
   private ClientCredentials credentials;
 
   @Exclude
+  @NotNull
   @OneToMany(mappedBy = "client")
   private Set<Account> accounts = new LinkedHashSet<>();
 

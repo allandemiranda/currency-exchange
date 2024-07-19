@@ -5,6 +5,7 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import java.io.Serial;
 import java.io.Serializable;
 import lombok.Data;
@@ -21,6 +22,7 @@ public class TransactionCreditInfo implements Serializable {
   @JoinColumn(name = "credit_account_id", nullable = false)
   private Account account;
 
+  @PositiveOrZero
   @Column(name = "credit_tmp_balance", nullable = false)
   private double tmpBalance;
 

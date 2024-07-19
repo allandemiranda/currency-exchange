@@ -15,13 +15,23 @@ import app.bank.dummy.exceptions.AccountCloseException;
 import app.bank.dummy.exceptions.AccountFondsInsuffisantException;
 import app.bank.dummy.exceptions.AccountNotFoundException;
 import app.bank.dummy.exceptions.ClientNotFoundException;
+import app.bank.dummy.exceptions.RateTaxUnavailableException;
 import app.bank.dummy.exceptions.TransactionNotFoundException;
 import app.bank.dummy.mappers.TransactionMapper;
 import app.bank.dummy.repositories.AccountRepository;
 import app.bank.dummy.repositories.ClientRepository;
 import app.bank.dummy.repositories.TransactionRepository;
 import app.bank.dummy.services.TransactionService;
-import jakarta.validation.constraints.NotNull;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import jakarta.validation.constraints.Positive;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Comparator;
@@ -31,6 +41,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -42,15 +53,17 @@ public class TransactionProvider implements TransactionService {
   private final TransactionMapper transactionMapper;
   private final AccountRepository accountRepository;
   private final ClientRepository clientRepository;
+  @Value("${external-api.key}")
+  private String key;
 
   @Override
-  public @NotNull Collection<@NotNull TransactionDto> getTransactions() {
+  public @NonNull Collection<@NonNull TransactionDto> getTransactions() {
     final Collection<Transaction> transactions = this.getTransactionRepository().findAll();
     return transactions.stream().map(transaction -> this.getTransactionMapper().toDto(transaction)).toList();
   }
 
   @Override
-  public Collection<@NotNull ClientTransactionDto> getClientAccountTransactions(final Long clientId, final UUID accountId) {
+  public @NonNull Collection<@NonNull ClientTransactionDto> getClientAccountTransactions(final @NonNull Long clientId, final @NonNull UUID accountId) {
     final Client client = this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
     final Account account = client.getAccounts().stream().filter(acc -> acc.getId().equals(accountId)).findFirst().orElseThrow(() -> new AccountNotFoundException(accountId));
     final Collection<ClientTransactionDto> debitClientTransactionDtos = this.getTransactionRepository().findByDebitInfo_Account_Id(account.getId()).stream().map(
@@ -63,7 +76,7 @@ public class TransactionProvider implements TransactionService {
   }
 
   @Override
-  public ClientTransactionDto getClientAccountTransaction(final Long clientId, final UUID accountId, final UUID transactionId) {
+  public @NonNull ClientTransactionDto getClientAccountTransaction(final @NonNull Long clientId, final @NonNull UUID accountId, final @NonNull UUID transactionId) {
     final Client client = this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
     final Account account = client.getAccounts().stream().filter(acc -> acc.getId().equals(accountId)).findFirst().orElseThrow(() -> new AccountNotFoundException(accountId));
     final Transaction transaction = this.getTransactionRepository().findById(transactionId).orElseThrow(() -> new TransactionNotFoundException(transactionId));
@@ -77,7 +90,7 @@ public class TransactionProvider implements TransactionService {
   }
 
   @Override
-  public ClientTransactionDto createClientAccountTransaction(final Long clientId, final UUID accountId, final @NonNull NewTransactionDto newTransactionDto) {
+  public @NonNull ClientTransactionDto createClientAccountTransaction(final @NonNull Long clientId, final @NonNull UUID accountId, final @NonNull NewTransactionDto newTransactionDto) {
     final Client client = this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
     final Account debit = client.getAccounts().stream().filter(account -> account.getId().equals(accountId)).findFirst().orElseThrow(() -> new AccountNotFoundException(accountId));
     if (AccountStatus.CLOSE.equals(debit.getStatus())) {
@@ -115,20 +128,18 @@ public class TransactionProvider implements TransactionService {
     return this.getTransactionMapper().toDto(saved, debitUpdate.getBalance(), TransactionType.DEBIT, credit.getId());
   }
 
-  private double getTaxRate(final @NotNull Currency debitCurrency, final Currency creditCurrency) {
-//
-//    final String url = "https://v6.exchangerate-api.com/v6/".concat(key).concat("/latest/").concat(creditCode);
-//    final HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).method("GET", HttpRequest.BodyPublishers.noBody()).build();
-//
-//    try (final HttpClient httpClient = HttpClient.newHttpClient()) {
-//      final HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
-//      final JsonElement root = JsonParser.parseReader(new InputStreamReader(response.body()));
-//      return root.getAsJsonObject().asMap().get("conversion_rates").getAsJsonObject().asMap().get(debitCode).getAsDouble();
-//    } catch (IOException | InterruptedException e) {
-//      Thread.currentThread().interrupt();
-//      throw new RateTaxUnavailableException();
-//    }
-//    throw new RateTaxUnavailableException("ERRO TESTE");
-    return 2.0;
+  @Positive
+  private double getTaxRate(final @NonNull Currency debitCurrency, final @NonNull Currency creditCurrency) {
+    final String url = "https://v6.exchangerate-api.com/v6/".concat(key).concat("/latest/").concat(creditCurrency.getName());
+    final HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).method("GET", HttpRequest.BodyPublishers.noBody()).build();
+
+    try (final HttpClient httpClient = HttpClient.newHttpClient()) {
+      final HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+      final JsonElement root = JsonParser.parseReader(new InputStreamReader(response.body()));
+      return root.getAsJsonObject().asMap().get("conversion_rates").getAsJsonObject().asMap().get(debitCurrency.getName()).getAsDouble();
+    } catch (IOException | InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new RateTaxUnavailableException();
+    }
   }
 }

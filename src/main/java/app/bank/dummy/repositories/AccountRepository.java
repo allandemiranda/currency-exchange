@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface AccountRepository extends JpaRepository<Account, UUID> {
 
+  @NonNull
   @Transactional(readOnly = true)
-  Collection<Account> findByClient_Id(@NonNull Long id);
+  Collection<Account> findByClient_Id(final @NonNull Long id);
 }

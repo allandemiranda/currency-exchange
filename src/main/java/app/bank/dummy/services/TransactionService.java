@@ -3,27 +3,27 @@ package app.bank.dummy.services;
 import app.bank.dummy.dtos.ClientTransactionDto;
 import app.bank.dummy.dtos.NewTransactionDto;
 import app.bank.dummy.dtos.TransactionDto;
-import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.UUID;
+import lombok.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface TransactionService {
 
   @Transactional(readOnly = true)
-  @NotNull
-  Collection<@NotNull TransactionDto> getTransactions();
+  @NonNull
+  Collection<@NonNull TransactionDto> getTransactions();
 
   @Transactional(readOnly = true)
-  @NotNull
-  Collection<@NotNull ClientTransactionDto> getClientAccountTransactions(final @NotNull Long clientId, final @NotNull UUID accountId);
+  @NonNull
+  Collection<@NonNull ClientTransactionDto> getClientAccountTransactions(final @NonNull Long clientId, final @NonNull UUID accountId);
 
   @Transactional(readOnly = true)
-  @NotNull
-  ClientTransactionDto getClientAccountTransaction(final @NotNull Long clientId, final @NotNull UUID accountId, final @NotNull UUID transactionId);
+  @NonNull
+  ClientTransactionDto getClientAccountTransaction(final @NonNull Long clientId, final @NonNull UUID accountId, final @NonNull UUID transactionId);
 
   @Transactional
-  @NotNull
-  ClientTransactionDto createClientAccountTransaction(final @NotNull Long clientId, final @NotNull UUID accountId, final @NotNull NewTransactionDto newTransactionDto);
+  @NonNull
+  ClientTransactionDto createClientAccountTransaction(final @NonNull Long clientId, final @NonNull UUID accountId, final @NonNull NewTransactionDto newTransactionDto);
 
 }

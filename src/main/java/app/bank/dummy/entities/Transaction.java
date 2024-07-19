@@ -54,6 +54,7 @@ public class Transaction implements Serializable {
   @Column(name = "amount", nullable = false, updatable = false)
   private double amount;
 
+  @Positive
   @Column(name = "tax_rate", nullable = false, updatable = false)
   private double taxRate;
 

@@ -3,34 +3,34 @@ package app.bank.dummy.services;
 import app.bank.dummy.dtos.ClientDto;
 import app.bank.dummy.dtos.NewClientDto;
 import app.bank.dummy.dtos.UpdateClientDto;
-import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.UUID;
+import lombok.NonNull;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface ClientService {
 
   @Transactional(readOnly = true)
-  @NotNull
-  ClientDto getClient(final @NotNull Long clientId);
+  @NonNull
+  ClientDto getClient(final @NonNull Long clientId);
 
   @Transactional(readOnly = true)
-  @NotNull
-  Collection<@NotNull ClientDto> getClients();
+  @NonNull
+  Collection<@NonNull ClientDto> getClients();
 
   @Transactional
-  @NotNull
-  ClientDto createClient(final @NotNull NewClientDto newClientDto);
+  @NonNull
+  ClientDto createClient(final @NonNull NewClientDto newClientDto);
 
   @Transactional
-  @NotNull
-  ClientDto updateClient(final @NotNull Long clientId, @NotNull final UpdateClientDto updateClientDto);
+  @NonNull
+  ClientDto updateClient(final @NonNull Long clientId, @NonNull final UpdateClientDto updateClientDto);
 
   @Transactional
-  ClientDto deactivateClient(final @NotNull Long clientId);
+  ClientDto deactivateClient(final @NonNull Long clientId);
 
   @Transactional(readOnly = true)
-  @NotNull
-  ClientDto getClientByAccountId(@NotNull final UUID accountId);
+  @NonNull
+  ClientDto getClientByAccountId(@NonNull final UUID accountId);
 
 }

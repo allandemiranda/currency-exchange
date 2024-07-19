@@ -13,11 +13,11 @@ import app.bank.dummy.mappers.ClientMapper;
 import app.bank.dummy.repositories.AccountRepository;
 import app.bank.dummy.repositories.ClientRepository;
 import app.bank.dummy.services.ClientService;
-import jakarta.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,19 +31,19 @@ public class ClientProvider implements ClientService {
   private final ClientMapper clientMapper;
 
   @Override
-  public ClientDto getClient(final Long clientId) {
+  public @NonNull ClientDto getClient(final @NonNull Long clientId) {
     final Client client = this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
     return this.getClientMapper().toDto(client);
   }
 
   @Override
-  public Collection<@NotNull ClientDto> getClients() {
+  public @NonNull Collection<@NonNull ClientDto> getClients() {
     final Collection<Client> clients = this.getClientRepository().findAll();
     return clients.stream().map(this.getClientMapper()::toDto).toList();
   }
 
   @Override
-  public ClientDto createClient(final NewClientDto newClientDto) {
+  public @NonNull ClientDto createClient(final @NonNull NewClientDto newClientDto) {
     final Client newClient = this.getClientMapper().toEntity(newClientDto);
     newClient.getInfo().setStatus(ClientStatus.ACTIVATE);
     final Client savedClient = this.getClientRepository().save(newClient);
@@ -51,7 +51,7 @@ public class ClientProvider implements ClientService {
   }
 
   @Override
-  public ClientDto updateClient(final Long clientId, final @NotNull UpdateClientDto updateClientDto) {
+  public @NonNull ClientDto updateClient(final @NonNull Long clientId, final @NonNull UpdateClientDto updateClientDto) {
     final Client client = this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
     final Client updatedClient = this.getClientMapper().partialUpdate(updateClientDto, client);
     final Client savedClient = this.getClientRepository().save(updatedClient);
@@ -59,7 +59,7 @@ public class ClientProvider implements ClientService {
   }
 
   @Override
-  public ClientDto deactivateClient(final Long clientId) {
+  public ClientDto deactivateClient(final @NonNull Long clientId) {
     final Client client = this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
     final Collection<Account> accounts = client.getAccounts().stream().peek(account -> account.setStatus(AccountStatus.CLOSE)).toList();
     this.getAccountRepository().saveAll(accounts);
@@ -67,7 +67,7 @@ public class ClientProvider implements ClientService {
   }
 
   @Override
-  public ClientDto getClientByAccountId(final UUID accountId) {
+  public @NonNull ClientDto getClientByAccountId(final @NonNull UUID accountId) {
     final Account account = this.getAccountRepository().findById(accountId).orElseThrow(() -> new AccountNotFoundException(accountId));
     return this.getClientMapper().toDto(account.getClient());
   }
