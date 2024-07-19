@@ -11,6 +11,7 @@ import app.bank.dummy.requests.AccountRequest;
 import app.bank.dummy.services.AccountService;
 import app.bank.dummy.services.ClientService;
 import app.bank.dummy.services.TransactionService;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
 import java.util.UUID;
 import lombok.AccessLevel;
@@ -62,19 +63,20 @@ public class AccountController implements AccountRequest {
 
   @Override
   public CollectionModel<EntityModel<TransactionDto>> getAccountTransactions(final UUID id) {
-    final Collection<TransactionDto> transactionDtos = this.getTransactionService().getTransactions(id);
-    return this.getTransactionAssembler().toCollectionModel(transactionDtos);
+    final Collection<SimpleEntry<UUID, TransactionDto>> clientTransactionList = this.getTransactionService().getTransactions(id).stream()
+        .map(transactionDto -> new SimpleEntry<>(id, transactionDto)).toList();
+    return this.getTransactionAssembler().toCollectionModel(clientTransactionList);
   }
 
   @Override
   public EntityModel<TransactionDto> createAccountTransaction(final UUID id, final NewTransactionDto newTransactionDto) {
     final TransactionDto transactionDto = this.getTransactionService().createTransaction(id, newTransactionDto);
-    return this.getTransactionAssembler().toModel(transactionDto);
+    return this.getTransactionAssembler().toModel(new SimpleEntry<>(id, transactionDto));
   }
 
   @Override
   public EntityModel<TransactionDto> getAccountTransaction(final UUID id, final UUID transactionId) {
     final TransactionDto transactionDto = this.getTransactionService().getTransaction(id, transactionId);
-    return this.getTransactionAssembler().toModel(transactionDto);
+    return this.getTransactionAssembler().toModel(new SimpleEntry<>(id, transactionDto));
   }
 }

@@ -4,6 +4,8 @@ import app.bank.dummy.dtos.NewTransactionDto;
 import app.bank.dummy.dtos.TransactionDto;
 import app.bank.dummy.entities.Account;
 import app.bank.dummy.entities.Transaction;
+import app.bank.dummy.entities.TransactionCreditInfo;
+import app.bank.dummy.entities.TransactionDebitInfo;
 import app.bank.dummy.enums.AccountStatus;
 import app.bank.dummy.enums.Currency;
 import app.bank.dummy.enums.TransactionType;
@@ -81,8 +83,14 @@ public class TransactionProvider implements TransactionService {
     transaction.setDataTime(LocalDateTime.now());
     transaction.setTaxRate(taxRate);
     transaction.setAmount(newTransactionDto.amount());
-    transaction.getDebitInfo().setAccount(debitUpdate);
-    transaction.getCreditInfo().setAccount(creditUpdate);
+
+    final TransactionDebitInfo transactionDebitInfo = new TransactionDebitInfo();
+    transactionDebitInfo.setAccount(debitUpdate);
+    transaction.setDebitInfo(transactionDebitInfo);
+
+    final TransactionCreditInfo creditInfo = new TransactionCreditInfo();
+    creditInfo.setAccount(creditUpdate);
+    transaction.setCreditInfo(creditInfo);
 
     final Transaction saved = this.getTransactionRepository().save(transaction);
     return this.getTransactionMapper().toDto(saved, debitUpdate.getBalance(), TransactionType.DEBIT, credit.getId());
@@ -102,6 +110,6 @@ public class TransactionProvider implements TransactionService {
 //      throw new RateTaxUnavailableException();
 //    }
 //    throw new RateTaxUnavailableException("ERRO TESTE");
-    return 1.5;
+    return 2.0;
   }
 }
