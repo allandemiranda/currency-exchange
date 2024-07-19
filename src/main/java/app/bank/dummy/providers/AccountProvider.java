@@ -29,6 +29,10 @@ public class AccountProvider implements AccountService {
   private final ClientRepository clientRepository;
   private final AccountMapper accountMapper;
 
+  private static Account getAccount(final @NonNull UUID accountId, final @NonNull Client client) {
+    return client.getAccounts().stream().filter(acc -> accountId.equals(acc.getId())).findFirst().orElseThrow(() -> new AccountNotFoundException(accountId));
+  }
+
   @Override
   public @NonNull AccountDto getAccount(final @NonNull UUID accountId) {
     final Account account = this.getAccountRepository().findById(accountId).orElseThrow(() -> new AccountNotFoundException(accountId));
@@ -37,8 +41,8 @@ public class AccountProvider implements AccountService {
 
   @Override
   public @NonNull ClientAccountDto getClientAccount(final @NonNull Long clientId, final @NonNull UUID accountId) {
-    final Client client = this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
-    final Account account = client.getAccounts().stream().filter(acc -> accountId.equals(acc.getId())).findFirst().orElseThrow(() -> new AccountNotFoundException(accountId));
+    final Client client = this.getClient(clientId);
+    final Account account = getAccount(accountId, client);
     return this.getAccountMapper().toDtoClient(account);
   }
 
@@ -50,8 +54,8 @@ public class AccountProvider implements AccountService {
 
   @Override
   public @NonNull ClientAccountDto closeClientAccount(final @NonNull Long clientId, final @NonNull UUID accountId) {
-    final Client client = this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
-    final Account account = client.getAccounts().stream().filter(acc -> accountId.equals(acc.getId())).findFirst().orElseThrow(() -> new AccountNotFoundException(accountId));
+    final Client client = this.getClient(clientId);
+    final Account account = getAccount(accountId, client);
     account.setStatus(AccountStatus.CLOSE);
     final Account savedAccount = this.getAccountRepository().save(account);
     return this.getAccountMapper().toDtoClient(savedAccount);
@@ -65,11 +69,15 @@ public class AccountProvider implements AccountService {
 
   @Override
   public @NonNull ClientAccountDto createClientAccount(final @NonNull Long clientId, final @NonNull NewAccountDto newAccountDto) {
-    final Client client = this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
+    final Client client = this.getClient(clientId);
     final Account newAccount = this.getAccountMapper().toEntity(newAccountDto);
     newAccount.setClient(client);
     newAccount.setStatus(AccountStatus.OPEN);
     final Account savedAccount = this.getAccountRepository().save(newAccount);
     return this.getAccountMapper().toDtoClient(savedAccount);
+  }
+
+  private Client getClient(final @NonNull Long clientId) {
+    return this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
   }
 }

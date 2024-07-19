@@ -1,5 +1,6 @@
 package app.bank.dummy.advices;
 
+import app.bank.dummy.exceptions.ClientDeactivateException;
 import app.bank.dummy.exceptions.ClientNotFoundException;
 import java.util.Map;
 import lombok.AccessLevel;
@@ -23,5 +24,11 @@ public class ClientAdvice {
   @ResponseStatus(HttpStatus.NOT_FOUND)
   public Map<String, Object> clientNotFoundHandler(final @NonNull WebRequest webRequest) {
     return this.getAttributes().extractErrorAttributes(webRequest, HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(ClientDeactivateException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public Map<String, Object> clientDeactivateHandler(final @NonNull WebRequest webRequest) {
+    return this.getAttributes().extractErrorAttributes(webRequest, HttpStatus.BAD_REQUEST);
   }
 }

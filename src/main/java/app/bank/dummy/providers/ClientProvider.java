@@ -32,7 +32,7 @@ public class ClientProvider implements ClientService {
 
   @Override
   public @NonNull ClientDto getClient(final @NonNull Long clientId) {
-    final Client client = this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
+    final Client client = this.getClientEntity(clientId);
     return this.getClientMapper().toDto(client);
   }
 
@@ -52,7 +52,7 @@ public class ClientProvider implements ClientService {
 
   @Override
   public @NonNull ClientDto updateClient(final @NonNull Long clientId, final @NonNull UpdateClientDto updateClientDto) {
-    final Client client = this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
+    final Client client = this.getClientEntity(clientId);
     final Client updatedClient = this.getClientMapper().partialUpdate(updateClientDto, client);
     final Client savedClient = this.getClientRepository().save(updatedClient);
     return this.getClientMapper().toDto(savedClient);
@@ -60,7 +60,7 @@ public class ClientProvider implements ClientService {
 
   @Override
   public ClientDto deactivateClient(final @NonNull Long clientId) {
-    final Client client = this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
+    final Client client = this.getClientEntity(clientId);
     final Collection<Account> accounts = client.getAccounts().stream().peek(account -> account.setStatus(AccountStatus.CLOSE)).toList();
     this.getAccountRepository().saveAll(accounts);
     return this.getClientMapper().toDto(client);
@@ -70,5 +70,9 @@ public class ClientProvider implements ClientService {
   public @NonNull ClientDto getClientByAccountId(final @NonNull UUID accountId) {
     final Account account = this.getAccountRepository().findById(accountId).orElseThrow(() -> new AccountNotFoundException(accountId));
     return this.getClientMapper().toDto(account.getClient());
+  }
+
+  private Client getClientEntity(final @NonNull Long clientId) {
+    return this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
   }
 }
