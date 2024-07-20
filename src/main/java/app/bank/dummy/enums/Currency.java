@@ -1,10 +1,11 @@
 package app.bank.dummy.enums;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public enum Currency {
   //@formatter:off
   EUR("EUR", "Euro"),
@@ -19,6 +20,8 @@ public enum Currency {
   SEK("SEK", "Swedish krona");
   //@formatter:on
 
+  @NonNull
   private final String name;
+  @NonNull
   private final String description;
 }
