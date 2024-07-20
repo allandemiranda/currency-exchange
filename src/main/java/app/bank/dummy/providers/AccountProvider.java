@@ -63,8 +63,8 @@ public class AccountProvider implements AccountService {
 
   @Override
   public @NonNull Collection<@NonNull ClientAccountDto> getClientAccounts(final @NonNull Long clientId) {
-    final Collection<Account> accounts = this.getAccountRepository().findByClient_Id(clientId);
-    return accounts.stream().map(this.getAccountMapper()::toDtoClient).toList();
+    final Client client = this.getClient(clientId);
+    return client.getAccounts().stream().map(this.getAccountMapper()::toDtoClient).toList();
   }
 
   @Override
