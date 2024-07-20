@@ -61,9 +61,10 @@ public class ClientProvider implements ClientService {
   @Override
   public ClientDto deactivateClient(final @NonNull Long clientId) {
     final Client client = this.getClientEntity(clientId);
-    final Collection<Account> accounts = client.getAccounts().stream().peek(account -> account.setStatus(AccountStatus.CLOSE)).toList();
-    this.getAccountRepository().saveAll(accounts);
-    return this.getClientMapper().toDto(client);
+    client.getAccounts().forEach(account -> account.setStatus(AccountStatus.CLOSE));
+    client.getInfo().setStatus(ClientStatus.DEACTIVATE);
+    final Client saved = this.getClientRepository().save(client);
+    return this.getClientMapper().toDto(saved);
   }
 
   @Override

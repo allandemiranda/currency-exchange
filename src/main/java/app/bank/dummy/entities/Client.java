@@ -1,6 +1,7 @@
 package app.bank.dummy.entities;
 
 import app.bank.dummy.listeners.ClientListener;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -56,7 +57,7 @@ public class Client implements Serializable {
 
   @Exclude
   @NotNull
-  @OneToMany(mappedBy = "client")
+  @OneToMany(mappedBy = "client", cascade = CascadeType.PERSIST)
   private Set<Account> accounts = new LinkedHashSet<>();
 
   @Override
