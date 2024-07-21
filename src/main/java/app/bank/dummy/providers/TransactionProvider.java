@@ -58,10 +58,6 @@ public class TransactionProvider implements TransactionService {
   @Value("${external-api.key}")
   private String key;
 
-  private static Account getAccount(final @NonNull UUID accountId, final @NonNull Client client) {
-    return client.getAccounts().stream().filter(acc -> acc.getId().equals(accountId)).findFirst().orElseThrow(() -> new AccountNotFoundException(accountId));
-  }
-
   @Override
   public @NonNull Collection<@NonNull TransactionDto> getTransactions() {
     final Collection<Transaction> transactions = this.getTransactionRepository().findAll();
@@ -70,26 +66,30 @@ public class TransactionProvider implements TransactionService {
 
   @Override
   public @NonNull Collection<@NonNull ClientTransactionDto> getClientAccountTransactions(final @NonNull Long clientId, final @NonNull UUID accountId) {
-    final Client client = this.getClient(clientId);
-    final Account account = getAccount(accountId, client);
-    final Collection<ClientTransactionDto> debitClientTransactionDtos = this.getTransactionRepository().findByDebitInfo_Account_Id(account.getId()).stream().map(
-            transaction -> this.getTransactionMapper().toDto(transaction, transaction.getDebitInfo().getTmpBalance(), TransactionType.DEBIT, transaction.getCreditInfo().getAccount().getId()))
-        .toList();
-    final Collection<ClientTransactionDto> creditClientTransactionDtos = this.getTransactionRepository().findByCreditInfo_Account_Id(account.getId()).stream().map(
-            transaction -> this.getTransactionMapper().toDto(transaction, transaction.getCreditInfo().getTmpBalance(), TransactionType.CREDIT, transaction.getDebitInfo().getAccount().getId()))
-        .toList();
+    final Account account = getAccount(clientId, accountId);
+    final Collection<ClientTransactionDto> debitClientTransactionDtos = this.getTransactionRepository().findByDebitInfo_Account_Id(account.getId()).stream().map(transaction -> {
+      final double debitInfoTmpBalance = transaction.getDebitInfo().getTmpBalance();
+      final UUID creditInfoAccountId = transaction.getCreditInfo().getAccount().getId();
+      return this.getTransactionMapper().toDto(transaction, debitInfoTmpBalance, TransactionType.DEBIT, creditInfoAccountId);
+    }).toList();
+    final Collection<ClientTransactionDto> creditClientTransactionDtos = this.getTransactionRepository().findByCreditInfo_Account_Id(account.getId()).stream().map(transaction -> {
+      final double creditInfoTmpBalance = transaction.getCreditInfo().getTmpBalance();
+      final UUID debitInfoAccountId = transaction.getDebitInfo().getAccount().getId();
+      return this.getTransactionMapper().toDto(transaction, creditInfoTmpBalance, TransactionType.CREDIT, debitInfoAccountId);
+    }).toList();
     return Stream.concat(debitClientTransactionDtos.stream(), creditClientTransactionDtos.stream()).sorted(Comparator.comparing(ClientTransactionDto::dataTime)).toList();
   }
 
   @Override
   public @NonNull ClientTransactionDto getClientAccountTransaction(final @NonNull Long clientId, final @NonNull UUID accountId, final @NonNull UUID transactionId) {
-    final Client client = this.getClient(clientId);
-    final Account account = getAccount(accountId, client);
+    final Account account = getAccount(clientId, accountId);
     final Transaction transaction = this.getTransactionRepository().findById(transactionId).orElseThrow(() -> new TransactionNotFoundException(transactionId));
-    if (account.equals(transaction.getDebitInfo().getAccount())) {
-      return this.getTransactionMapper().toDto(transaction, transaction.getDebitInfo().getTmpBalance(), TransactionType.DEBIT, transaction.getCreditInfo().getAccount().getId());
-    } else if (account.equals(transaction.getCreditInfo().getAccount())) {
-      return this.getTransactionMapper().toDto(transaction, transaction.getCreditInfo().getTmpBalance(), TransactionType.CREDIT, transaction.getDebitInfo().getAccount().getId());
+    final TransactionDebitInfo debitInfo = transaction.getDebitInfo();
+    final TransactionCreditInfo creditInfo = transaction.getCreditInfo();
+    if (account.equals(debitInfo.getAccount())) {
+      return this.getTransactionMapper().toDto(transaction, debitInfo.getTmpBalance(), TransactionType.DEBIT, creditInfo.getAccount().getId());
+    } else if (account.equals(creditInfo.getAccount())) {
+      return this.getTransactionMapper().toDto(transaction, creditInfo.getTmpBalance(), TransactionType.CREDIT, debitInfo.getAccount().getId());
     } else {
       throw new TransactionNotFoundException(transactionId);
     }
@@ -101,8 +101,8 @@ public class TransactionProvider implements TransactionService {
     transaction.setDataTime(LocalDateTime.now());
     transaction.setAmount(newTransactionDto.amount());
 
-    final Account debitUpdate = this.getDebitUpdate(clientId, accountId, newTransactionDto);
-    final Account creditUpdate = this.getCreditUpdate(transaction, newTransactionDto, debitUpdate);
+    final Account debitUpdate = this.getDebitUpdate(clientId, accountId, newTransactionDto.amount());
+    final Account creditUpdate = this.getCreditUpdate(transaction, newTransactionDto.creditAccountId(), newTransactionDto.amount(), debitUpdate);
 
     final TransactionDebitInfo transactionDebitInfo = new TransactionDebitInfo();
     transactionDebitInfo.setAccount(debitUpdate);
@@ -116,31 +116,27 @@ public class TransactionProvider implements TransactionService {
     return this.getTransactionMapper().toDto(saved, debitUpdate.getBalance(), TransactionType.DEBIT, creditUpdate.getId());
   }
 
-  private @NonNull Account getDebitUpdate(final @NonNull Long clientId, final @NonNull UUID accountId, final @NonNull NewTransactionDto newTransactionDto) {
-    final Client client = this.getClient(clientId);
-    final Account debit = getAccount(accountId, client);
-    if (AccountStatus.CLOSE.equals(debit.getStatus())) {
-      throw new AccountCloseException(debit.getId());
+  private @NonNull Account getDebitUpdate(final @NonNull Long clientId, final @NonNull UUID accountId, final double amount) {
+    final Account debit = getAccount(clientId, accountId);
+    final double newDebitBalance = debit.getBalance() - amount;
+    if (newDebitBalance < 0D) {
+      throw new AccountFondsInsuffisantException(accountId);
     } else {
-      final double newDebitBalance = debit.getBalance() - newTransactionDto.amount();
-      if (newDebitBalance < 0D) {
-        throw new AccountFondsInsuffisantException(accountId);
-      } else {
-        debit.setBalance(newDebitBalance);
-        return this.getAccountRepository().save(debit);
-      }
+      debit.setBalance(newDebitBalance);
+      return this.getAccountRepository().save(debit);
     }
   }
 
-  private @NonNull Account getCreditUpdate(final @NonNull Transaction transaction, final @NonNull NewTransactionDto newTransactionDto, final @NonNull Account debitUpdate) {
-    final Account credit = this.getAccountRepository().findById(newTransactionDto.creditAccountId()).orElseThrow(() -> new AccountNotFoundException(newTransactionDto.creditAccountId()));
-    if (AccountStatus.CLOSE.equals(credit.getStatus())) {
-      throw new AccountCloseException(credit.getId());
+  private @NonNull Account getCreditUpdate(final @NonNull Transaction transaction, final @NonNull UUID accountId, final double amount, final @NonNull Account debitUpdate) {
+    final Account credit = this.getAccountRepository().findById(accountId).orElseThrow(() -> new AccountNotFoundException(accountId));
+    if(credit.getStatus().equals(AccountStatus.CLOSE)) {
+      throw new AccountCloseException(accountId);
+    } else {
+      final double taxRate = this.getTaxRate(debitUpdate.getCurrency(), credit.getCurrency());
+      transaction.setTaxRate(taxRate);
+      credit.setBalance(credit.getBalance() + (amount * taxRate));
+      return this.getAccountRepository().save(credit);
     }
-    final double taxRate = this.getTaxRate(debitUpdate.getCurrency(), credit.getCurrency());
-    transaction.setTaxRate(taxRate);
-    credit.setBalance(credit.getBalance() + (newTransactionDto.amount() * taxRate));
-    return this.getAccountRepository().save(credit);
   }
 
   private @NonNull Client getClient(final @NonNull Long clientId) {
@@ -149,6 +145,16 @@ public class TransactionProvider implements TransactionService {
       throw new ClientDeactivateException(clientId);
     } else {
       return client;
+    }
+  }
+
+  private @NonNull Account getAccount(final @NonNull Long clientId, final @NonNull UUID accountId) {
+    final Client client = this.getClient(clientId);
+    final Account account = client.getAccounts().stream().filter(acc -> acc.getId().equals(accountId)).findFirst().orElseThrow(() -> new AccountNotFoundException(accountId));
+    if (AccountStatus.OPEN.equals(account.getStatus())) {
+      return account;
+    } else {
+      throw new AccountCloseException(accountId);
     }
   }
 
