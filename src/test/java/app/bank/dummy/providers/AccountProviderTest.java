@@ -5,7 +5,9 @@ import app.bank.dummy.dtos.ClientAccountDto;
 import app.bank.dummy.dtos.NewAccountDto;
 import app.bank.dummy.entities.Account;
 import app.bank.dummy.entities.Client;
+import app.bank.dummy.entities.ClientInfo;
 import app.bank.dummy.enums.AccountStatus;
+import app.bank.dummy.enums.ClientStatus;
 import app.bank.dummy.exceptions.AccountNotFoundException;
 import app.bank.dummy.exceptions.ClientNotFoundException;
 import app.bank.dummy.mappers.AccountMapper;
@@ -81,7 +83,10 @@ class AccountProviderTest {
     final Client client = Mockito.mock(Client.class);
     final Account account = Mockito.mock(Account.class);
     final ClientAccountDto clientAccountDto = Mockito.mock(ClientAccountDto.class);
-
+    final ClientInfo clientInfo = Mockito.mock(ClientInfo.class);
+    //when
+    Mockito.when(client.getInfo()).thenReturn(clientInfo);
+    Mockito.when(clientInfo.getStatus()).thenReturn(ClientStatus.ACTIVATE);
     Mockito.when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
     Mockito.when(client.getAccounts()).thenReturn(Set.of(account));
     Mockito.when(account.getId()).thenReturn(accountId);
@@ -93,16 +98,22 @@ class AccountProviderTest {
   }
 
   @Test
-  void testGetClientAccountShouldThrowClientNotFoundException() {
+  void testShouldThrowClientNotFoundException() {
     //given
     final Long clientId = 1L;
     final UUID accountId = UUID.randomUUID();
+    final NewAccountDto newAccountDto = Mockito.mock(NewAccountDto.class);
     //when
     Mockito.when(clientRepository.findById(clientId)).thenReturn(Optional.empty());
-    final Executable executable = () -> accountProvider.getClientAccount(clientId, accountId);
+    final Executable executableClose = () -> accountProvider.closeClientAccount(clientId, accountId);
+    final Executable executableGets = () -> accountProvider.getClientAccounts(clientId);
+    final Executable executableCreate = () -> accountProvider.createClientAccount(clientId, newAccountDto);
+    final Executable executableGet = () -> accountProvider.getClientAccount(clientId, accountId);
     //then
-    Assertions.assertThrows(ClientNotFoundException.class, executable);
-    Mockito.verify(clientRepository).findById(clientId);
+    Assertions.assertThrows(ClientNotFoundException.class, executableClose);
+    Assertions.assertThrows(ClientNotFoundException.class, executableGets);
+    Assertions.assertThrows(ClientNotFoundException.class, executableCreate);
+    Assertions.assertThrows(ClientNotFoundException.class, executableGet);
   }
 
   @Test
@@ -112,7 +123,10 @@ class AccountProviderTest {
     final UUID accountId = UUID.randomUUID();
     final Client client = Mockito.mock(Client.class);
     final Set<Account> accounts = Set.of();
+    final ClientInfo clientInfo = Mockito.mock(ClientInfo.class);
     //when
+    Mockito.when(client.getInfo()).thenReturn(clientInfo);
+    Mockito.when(clientInfo.getStatus()).thenReturn(ClientStatus.ACTIVATE);
     Mockito.when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
     Mockito.when(client.getAccounts()).thenReturn(accounts);
     final Executable executable = () -> accountProvider.getClientAccount(clientId, accountId);
@@ -130,7 +144,10 @@ class AccountProviderTest {
     final Account savedAccount = Mockito.mock(Account.class);
     final UUID savedAccountId = UUID.fromString("f25d2934-490f-4ea5-b7ca-d121d77e7cda");
     final Set<Account> accounts = Set.of(savedAccount);
+    final ClientInfo clientInfo = Mockito.mock(ClientInfo.class);
     //when
+    Mockito.when(client.getInfo()).thenReturn(clientInfo);
+    Mockito.when(clientInfo.getStatus()).thenReturn(ClientStatus.ACTIVATE);
     Mockito.when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
     Mockito.when(client.getAccounts()).thenReturn(accounts);
     Mockito.when(savedAccount.getId()).thenReturn(savedAccountId);
@@ -175,7 +192,10 @@ class AccountProviderTest {
     final Account account = Mockito.spy(Account.class);
     final ClientAccountDto clientAccountDto = Mockito.mock(ClientAccountDto.class);
     final UUID accountId = UUID.randomUUID();
+    final ClientInfo clientInfo = Mockito.mock(ClientInfo.class);
     //when
+    Mockito.when(client.getInfo()).thenReturn(clientInfo);
+    Mockito.when(clientInfo.getStatus()).thenReturn(ClientStatus.ACTIVATE);
     Mockito.when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
     Mockito.when(client.getAccounts()).thenReturn(Set.of(account));
     Mockito.when(account.getId()).thenReturn(accountId);
@@ -196,7 +216,10 @@ class AccountProviderTest {
     final UUID accountId = UUID.randomUUID();
     final Client client = Mockito.mock(Client.class);
     final Set<Account> accounts = Set.of();
+    final ClientInfo clientInfo = Mockito.mock(ClientInfo.class);
     //when
+    Mockito.when(client.getInfo()).thenReturn(clientInfo);
+    Mockito.when(clientInfo.getStatus()).thenReturn(ClientStatus.ACTIVATE);
     Mockito.when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
     Mockito.when(client.getAccounts()).thenReturn(accounts);
     final Executable executable = () -> accountProvider.closeClientAccount(clientId, accountId);
@@ -224,7 +247,10 @@ class AccountProviderTest {
     final Account account = Mockito.mock(Account.class);
     final Set<Account> accounts = Set.of(account);
     final ClientAccountDto clientAccountDto = Mockito.mock(ClientAccountDto.class);
+    final ClientInfo clientInfo = Mockito.mock(ClientInfo.class);
     //when
+    Mockito.when(client.getInfo()).thenReturn(clientInfo);
+    Mockito.when(clientInfo.getStatus()).thenReturn(ClientStatus.ACTIVATE);
     Mockito.when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
     Mockito.when(client.getAccounts()).thenReturn(accounts);
     Mockito.when(accountMapper.toDtoClient(account)).thenReturn(clientAccountDto);
@@ -251,7 +277,10 @@ class AccountProviderTest {
     final Client client = Mockito.mock(Client.class);
     final Account account = Mockito.spy(Account.class);
     final ClientAccountDto clientAccountDto = Mockito.mock(ClientAccountDto.class);
+    final ClientInfo clientInfo = Mockito.mock(ClientInfo.class);
     //when
+    Mockito.when(client.getInfo()).thenReturn(clientInfo);
+    Mockito.when(clientInfo.getStatus()).thenReturn(ClientStatus.ACTIVATE);
     Mockito.when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
     Mockito.when(accountMapper.toEntity(newAccountDto)).thenReturn(account);
     Mockito.when(accountRepository.save(account)).thenReturn(account);
@@ -265,19 +294,6 @@ class AccountProviderTest {
     Mockito.verify(accountMapper).toDtoClient(account);
     Assertions.assertEquals(client, account.getClient());
     Assertions.assertEquals(AccountStatus.OPEN, account.getStatus());
-  }
-
-  @Test
-  void testCreateClientAccountShouldThrowClientNotFoundException() {
-    //given
-    final Long clientId = 1L;
-    final NewAccountDto newAccountDto = Mockito.mock(NewAccountDto.class);
-    //when
-    Mockito.when(clientRepository.findById(clientId)).thenReturn(Optional.empty());
-    final Executable executable = () -> accountProvider.createClientAccount(clientId, newAccountDto);
-    //then
-    Assertions.assertThrows(ClientNotFoundException.class, executable);
-    Mockito.verify(clientRepository).findById(clientId);
   }
 
   @Test
