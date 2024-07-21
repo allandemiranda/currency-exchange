@@ -27,7 +27,7 @@ public interface ClientService {
   ClientDto updateClient(final @NonNull Long clientId, @NonNull final UpdateClientDto updateClientDto);
 
   @Transactional
-  ClientDto deactivateClient(final @NonNull Long clientId);
+  void deactivateClient(final @NonNull Long clientId);
 
   @Transactional(readOnly = true)
   @NonNull

@@ -146,7 +146,6 @@ class ClientProviderTest {
     final Long clientId = 1L;
     final Client client = Mockito.spy(Client.class);
     final Account account = Mockito.spy(Account.class);
-    final ClientDto clientDto = Mockito.mock(ClientDto.class);
     final List<Account> accounts = List.of(account);
     final ClientInfo clientInfo = Mockito.spy(ClientInfo.class);
     //when
@@ -154,13 +153,10 @@ class ClientProviderTest {
     Mockito.when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
     Mockito.when(client.getAccounts()).thenReturn(Set.copyOf(accounts));
     Mockito.when(clientRepository.save(client)).thenReturn(client);
-    Mockito.when(clientMapper.toDto(client)).thenReturn(clientDto);
-    final ClientDto result = clientProvider.deactivateClient(clientId);
+    clientProvider.deactivateClient(clientId);
     //then
-    Assertions.assertEquals(clientDto, result);
     Mockito.verify(clientRepository).findById(clientId);
     Mockito.verify(clientRepository).save(client);
-    Mockito.verify(clientMapper).toDto(client);
     Assertions.assertEquals(ClientStatus.DEACTIVATE, client.getInfo().getStatus());
     Assertions.assertEquals(AccountStatus.CLOSE, account.getStatus());
   }
