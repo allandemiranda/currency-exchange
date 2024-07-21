@@ -27,7 +27,7 @@ public interface AccountRequest {
    */
   @GetMapping("/{accountId}")
   @ResponseStatus(HttpStatus.OK)
-  EntityModel<AccountDto> getAccount(final @PathVariable UUID accountId);
+  EntityModel<AccountDto> getAccount(final @PathVariable(name = "accountId") UUID accountId);
 
   /**
    * @param accountId The account ID
