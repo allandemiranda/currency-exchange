@@ -5,6 +5,7 @@
 - Java 22
 - Spring 3
 - H2
+- Maven
 ## To compile
 ```
 sh mvnw compile
