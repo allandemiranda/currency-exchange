@@ -40,6 +40,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.SerializationUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -397,7 +398,7 @@ class TransactionProviderTest {
   @ParameterizedTest
   @ValueSource(doubles = {100d, 200d})
   void testCreateClientAccountTransactionShouldReturnClientTransactionDto(double amount) {
-    try(MockedStatic<ExternalApiUtils> externalApiUtilsMockedStatic = Mockito.mockStatic(ExternalApiUtils.class)) {
+    try (MockedStatic<ExternalApiUtils> externalApiUtilsMockedStatic = Mockito.mockStatic(ExternalApiUtils.class)) {
       //given
       final NewTransactionDto newTransactionDto = Mockito.mock(NewTransactionDto.class);
       final Long clientId = 1L;
@@ -414,6 +415,8 @@ class TransactionProviderTest {
       final ClientTransactionDto clientTransactionDto = Mockito.mock(ClientTransactionDto.class);
       final Currency debitCurrency = Mockito.mock(Currency.class);
       final Currency creditCurrency = Mockito.mock(Currency.class);
+      final String key = "fullKey";
+      ReflectionTestUtils.setField(transactionProvider, "key", key);
       //when
       Mockito.when(debitAccount.getCurrency()).thenReturn(debitCurrency);
       Mockito.when(creditAccount.getCurrency()).thenReturn(creditCurrency);
@@ -434,7 +437,7 @@ class TransactionProviderTest {
       Mockito.when(accountRepository.save(creditAccount)).thenReturn(creditAccount);
       Mockito.when(transactionRepository.save(Mockito.any())).thenReturn(transaction);
       Mockito.when(transactionMapper.toDto(transaction, debitAccount.getBalance(), TransactionType.DEBIT, creditAccountId)).thenReturn(clientTransactionDto);
-      externalApiUtilsMockedStatic.when(() -> ExternalApiUtils.getTaxRate(debitCurrency, creditCurrency, null)).thenReturn(1.0);
+      externalApiUtilsMockedStatic.when(() -> ExternalApiUtils.getTaxRate(debitCurrency, creditCurrency, key)).thenReturn(1.0);
       final ClientTransactionDto result = transactionProvider.createClientAccountTransaction(clientId, debitAccountId, newTransactionDto);
       //then
       final Account creditAccountClone = SerializationUtils.clone(creditAccount);
