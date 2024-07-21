@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @RequestMapping("/transactions")
 public interface TransactionRequest {
 
+  /**
+   * @return All Transactions from this system
+   */
   @GetMapping()
   @ResponseStatus(HttpStatus.OK)
   CollectionModel<EntityModel<TransactionDto>> getTransactions();

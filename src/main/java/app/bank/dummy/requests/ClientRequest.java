@@ -25,51 +25,106 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @RequestMapping("/clients")
 public interface ClientRequest {
 
+  /**
+   * @return All Clients on the system
+   */
   @GetMapping()
   @ResponseStatus(HttpStatus.OK)
   CollectionModel<EntityModel<ClientDto>> getClients();
 
+  /**
+   * @param newClientDto Inputs necessary to create a new Client
+   * @return The new Client
+   */
   @PostMapping()
   @ResponseStatus(HttpStatus.CREATED)
   ResponseEntity<EntityModel<ClientDto>> createClient(final @RequestBody @Valid NewClientDto newClientDto);
 
+  /**
+   * @param clientId The Client ID
+   * @return The Client information
+   */
   @GetMapping("/{clientId}")
   @ResponseStatus(HttpStatus.OK)
   EntityModel<ClientDto> getClient(final @PathVariable Long clientId);
 
+  /**
+   * @param clientId The Client ID to be updated
+   * @param updateClientDto The new parameters to be updated
+   * @return The Client updated
+   */
   @PutMapping("/{clientId}")
   @ResponseStatus(HttpStatus.CREATED)
   ResponseEntity<EntityModel<ClientDto>> updateClient(final @PathVariable Long clientId, final @RequestBody @Valid UpdateClientDto updateClientDto);
 
+  /**
+   * @param clientId The Client ID to be disabled
+   */
   @DeleteMapping("/{clientId}")
   @ResponseStatus(HttpStatus.OK)
   void deleteClient(final @PathVariable Long clientId);
 
+  /**
+   * @param clientId The Client ID
+   * @return List of accounts from this Client
+   */
   @GetMapping("/{clientId}/accounts")
   @ResponseStatus(HttpStatus.OK)
   CollectionModel<EntityModel<ClientAccountDto>> getClientAccounts(final @PathVariable Long clientId);
 
+  /**
+   * @param clientId The Client ID to open a new Account ID
+   * @param newAccountDto The parameters necessary to open a new Account to the Client
+   * @return The new Account from the Client
+   */
   @PostMapping("/{clientId}/accounts")
   @ResponseStatus(HttpStatus.CREATED)
   ResponseEntity<EntityModel<ClientAccountDto>> createClientAccount(final @PathVariable Long clientId, final @RequestBody @Valid NewAccountDto newAccountDto);
 
+  /**
+   * @param clientId The Client ID linked with Account ID
+   * @param accountId The Account ID linked with Client ID
+   * @return The Account information
+   */
   @GetMapping("/{clientId}/accounts/{accountId}")
   @ResponseStatus(HttpStatus.OK)
   EntityModel<ClientAccountDto> getClientAccount(final @PathVariable Long clientId, final @PathVariable UUID accountId);
 
+  /**
+   * @param clientId The Client ID linked with Account ID
+   * @param accountId The Account ID linked with Client that will be CLOSE
+   * @return The closed Account information
+   */
   @PutMapping("/{clientId}/accounts/{accountId}")
   @ResponseStatus(HttpStatus.OK)
   ResponseEntity<EntityModel<ClientAccountDto>> closeClientAccount(final @PathVariable Long clientId, final @PathVariable UUID accountId);
 
+  /**
+   * @param clientId The Client ID linked with Account ID
+   * @param accountId The Account ID linked with Client ID
+   * @return The historic Transactions from this Account
+   */
   @GetMapping("/{clientId}/accounts/{accountId}/transactions")
   @ResponseStatus(HttpStatus.OK)
   CollectionModel<EntityModel<ClientTransactionDto>> getClientAccountTransactions(final @PathVariable Long clientId, final @PathVariable UUID accountId);
 
+  /**
+   * @param clientId The Client ID linked with Account ID
+   * @param accountId The Account ID linked with Client ID
+   * @param newTransactionDto Inputs necessary to open one transaction between this Account and other Account from this system
+   * @return The Transaction done
+   */
   @PostMapping("/{clientId}/accounts/{accountId}/transactions")
   @ResponseStatus(HttpStatus.OK)
   ResponseEntity<EntityModel<ClientTransactionDto>> createClientAccountTransaction(final @PathVariable Long clientId, final @PathVariable UUID accountId,
       final @RequestBody NewTransactionDto newTransactionDto);
 
+  /**
+   * @param clientId The Client ID linked with Account ID
+   * @param accountId The Account ID linked with Client ID
+   * @param transactionId The Transaction ID linked with Account ID
+   * @return The information from this Transaction
+   */
   @GetMapping("/{clientId}/accounts/{accountId}/transactions/{transactionId}")
   @ResponseStatus(HttpStatus.OK)
   EntityModel<ClientTransactionDto> getClientAccountTransaction(final @PathVariable Long clientId, final @PathVariable UUID accountId, @PathVariable final UUID transactionId);
