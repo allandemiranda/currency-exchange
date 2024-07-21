@@ -62,7 +62,7 @@ public interface ClientRequest {
    */
   @DeleteMapping("/{clientId}")
   @ResponseStatus(HttpStatus.OK)
-  void deleteClient(final @PathVariable Long clientId);
+  void deleteClient(final @PathVariable(name = "clientId") Long clientId);
 
   /**
    * @param clientId The Client ID

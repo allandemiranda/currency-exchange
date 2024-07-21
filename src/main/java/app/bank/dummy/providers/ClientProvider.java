@@ -8,6 +8,7 @@ import app.bank.dummy.entities.Client;
 import app.bank.dummy.enums.AccountStatus;
 import app.bank.dummy.enums.ClientStatus;
 import app.bank.dummy.exceptions.AccountNotFoundException;
+import app.bank.dummy.exceptions.ClientDeactivateException;
 import app.bank.dummy.exceptions.ClientNotFoundException;
 import app.bank.dummy.mappers.ClientMapper;
 import app.bank.dummy.repositories.AccountRepository;
@@ -72,7 +73,12 @@ public class ClientProvider implements ClientService {
     return this.getClientMapper().toDto(account.getClient());
   }
 
-  private Client getClientEntity(final @NonNull Long clientId) {
-    return this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
+  private @NonNull Client getClientEntity(final @NonNull Long clientId) {
+    final Client client = this.getClientRepository().findById(clientId).orElseThrow(() -> new ClientNotFoundException(clientId));
+    if(ClientStatus.ACTIVATE.equals(client.getInfo().getStatus())){
+      return client;
+    } else {
+      throw new ClientDeactivateException(clientId);
+    }
   }
 }

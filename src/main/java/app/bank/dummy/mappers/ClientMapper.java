@@ -21,6 +21,7 @@ public interface ClientMapper {
   @Mapping(target = "firstName", source = "client.info.firstName")
   @Mapping(target = "lastName", source = "client.info.lastName")
   @Mapping(target = "login", source = "client.credentials.login")
+  @Mapping(target = "clientStatus", source = "client.info.status")
   ClientDto toDto(final @NotNull Client client);
 
   @NotNull
