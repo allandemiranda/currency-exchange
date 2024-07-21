@@ -66,7 +66,7 @@ public class TransactionProvider implements TransactionService {
 
   @Override
   public @NonNull Collection<@NonNull ClientTransactionDto> getClientAccountTransactions(final @NonNull Long clientId, final @NonNull UUID accountId) {
-    final Account account = getAccount(clientId, accountId);
+    final Account account = this.getAccount(clientId, accountId);
     final Collection<ClientTransactionDto> debitClientTransactionDtos = this.getTransactionRepository().findByDebitInfo_Account_Id(account.getId()).stream().map(transaction -> {
       final double debitInfoTmpBalance = transaction.getDebitInfo().getTmpBalance();
       final UUID creditInfoAccountId = transaction.getCreditInfo().getAccount().getId();
@@ -82,7 +82,7 @@ public class TransactionProvider implements TransactionService {
 
   @Override
   public @NonNull ClientTransactionDto getClientAccountTransaction(final @NonNull Long clientId, final @NonNull UUID accountId, final @NonNull UUID transactionId) {
-    final Account account = getAccount(clientId, accountId);
+    final Account account = this.getAccount(clientId, accountId);
     final Transaction transaction = this.getTransactionRepository().findById(transactionId).orElseThrow(() -> new TransactionNotFoundException(transactionId));
     final TransactionDebitInfo debitInfo = transaction.getDebitInfo();
     final TransactionCreditInfo creditInfo = transaction.getCreditInfo();
@@ -102,11 +102,12 @@ public class TransactionProvider implements TransactionService {
     transaction.setAmount(newTransactionDto.amount());
 
     final Account debitUpdate = this.getDebitUpdate(clientId, accountId, newTransactionDto.amount());
-    final Account creditUpdate = this.getCreditUpdate(transaction, newTransactionDto.creditAccountId(), newTransactionDto.amount(), debitUpdate);
 
     final TransactionDebitInfo transactionDebitInfo = new TransactionDebitInfo();
     transactionDebitInfo.setAccount(debitUpdate);
     transaction.setDebitInfo(transactionDebitInfo);
+
+    final Account creditUpdate = this.getCreditUpdate(transaction, newTransactionDto.creditAccountId(), newTransactionDto.amount(), debitUpdate);
 
     final TransactionCreditInfo transactionCreditInfo = new TransactionCreditInfo();
     transactionCreditInfo.setAccount(creditUpdate);
@@ -117,7 +118,7 @@ public class TransactionProvider implements TransactionService {
   }
 
   private @NonNull Account getDebitUpdate(final @NonNull Long clientId, final @NonNull UUID accountId, final double amount) {
-    final Account debit = getAccount(clientId, accountId);
+    final Account debit = this.getAccount(clientId, accountId);
     final double newDebitBalance = debit.getBalance() - amount;
     if (newDebitBalance < 0D) {
       throw new AccountFondsInsuffisantException(accountId);
@@ -160,16 +161,17 @@ public class TransactionProvider implements TransactionService {
 
   @Positive
   private double getTaxRate(final @NonNull Currency debitCurrency, final @NonNull Currency creditCurrency) {
-    final String url = "https://v6.exchangerate-api.com/v6/".concat(key).concat("/latest/").concat(creditCurrency.getName());
-    final HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).method("GET", HttpRequest.BodyPublishers.noBody()).build();
-
-    try (final HttpClient httpClient = HttpClient.newHttpClient()) {
-      final HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
-      final JsonElement root = JsonParser.parseReader(new InputStreamReader(response.body()));
-      return root.getAsJsonObject().asMap().get("conversion_rates").getAsJsonObject().asMap().get(debitCurrency.getName()).getAsDouble();
-    } catch (IOException | InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new RateTaxUnavailableException();
-    }
+    return 1.0;
+//    final String url = "https://v6.exchangerate-api.com/v6/".concat(key).concat("/latest/").concat(creditCurrency.getName());
+//    final HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).method("GET", HttpRequest.BodyPublishers.noBody()).build();
+//
+//    try (final HttpClient httpClient = HttpClient.newHttpClient()) {
+//      final HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
+//      final JsonElement root = JsonParser.parseReader(new InputStreamReader(response.body()));
+//      return root.getAsJsonObject().asMap().get("conversion_rates").getAsJsonObject().asMap().get(debitCurrency.getName()).getAsDouble();
+//    } catch (IOException | InterruptedException e) {
+//      Thread.currentThread().interrupt();
+//      throw new RateTaxUnavailableException();
+//    }
   }
 }
