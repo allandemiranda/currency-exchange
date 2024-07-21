@@ -9,6 +9,7 @@ import app.bank.dummy.entities.ClientInfo;
 import app.bank.dummy.enums.AccountStatus;
 import app.bank.dummy.enums.ClientStatus;
 import app.bank.dummy.exceptions.AccountNotFoundException;
+import app.bank.dummy.exceptions.ClientDeactivateException;
 import app.bank.dummy.exceptions.ClientNotFoundException;
 import app.bank.dummy.mappers.ClientMapper;
 import app.bank.dummy.repositories.AccountRepository;
@@ -26,6 +27,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.util.SerializationUtils;
 
 @ExtendWith(MockitoExtension.class)
 class ClientProviderTest {
@@ -45,14 +47,37 @@ class ClientProviderTest {
     final Long clientId = 1L;
     final Client client = Mockito.mock(Client.class);
     final ClientDto clientDto = Mockito.mock(ClientDto.class);
+    final ClientInfo clientInfo = Mockito.mock(ClientInfo.class);
     //when
     Mockito.when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
     Mockito.when(clientMapper.toDto(client)).thenReturn(clientDto);
+    Mockito.when(client.getInfo()).thenReturn(clientInfo);
+    Mockito.when(clientInfo.getStatus()).thenReturn(ClientStatus.ACTIVATE);
     final ClientDto result = clientProvider.getClient(clientId);
     //then
     Assertions.assertEquals(clientDto, result);
     Mockito.verify(clientRepository).findById(clientId);
     Mockito.verify(clientMapper).toDto(client);
+  }
+
+  @Test
+  void testGetShouldThrowClientDeactivateException() {
+    //given
+    final Long clientId = 1L;
+    final Client client = Mockito.mock(Client.class);
+    final ClientInfo clientInfo = Mockito.mock(ClientInfo.class);
+    final UpdateClientDto updateClientDto = Mockito.mock(UpdateClientDto.class);
+    //when
+    Mockito.when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
+    Mockito.when(client.getInfo()).thenReturn(clientInfo);
+    Mockito.when(clientInfo.getStatus()).thenReturn(ClientStatus.DEACTIVATE);
+    final Executable executableGet = () -> clientProvider.getClient(clientId);
+    final Executable executableUpdate = () -> clientProvider.updateClient(clientId, updateClientDto);
+    final Executable executableDeactivate = () -> clientProvider.deactivateClient(clientId);
+    //then
+    Assertions.assertThrows(ClientDeactivateException.class, executableGet);
+    Assertions.assertThrows(ClientDeactivateException.class, executableUpdate);
+    Assertions.assertThrows(ClientDeactivateException.class, executableDeactivate);
   }
 
   @Test
@@ -113,11 +138,14 @@ class ClientProviderTest {
     final Client client = Mockito.mock(Client.class);
     final Client updatedClient = Mockito.mock(Client.class);
     final ClientDto clientDto = Mockito.mock(ClientDto.class);
+    final ClientInfo clientInfo = Mockito.mock(ClientInfo.class);
     //when
     Mockito.when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
     Mockito.when(clientMapper.partialUpdate(updateClientDto, client)).thenReturn(updatedClient);
     Mockito.when(clientRepository.save(updatedClient)).thenReturn(updatedClient);
     Mockito.when(clientMapper.toDto(updatedClient)).thenReturn(clientDto);
+    Mockito.when(client.getInfo()).thenReturn(clientInfo);
+    Mockito.when(clientInfo.getStatus()).thenReturn(ClientStatus.ACTIVATE);
     final ClientDto result = clientProvider.updateClient(clientId, updateClientDto);
     //then
     Assertions.assertEquals(clientDto, result);
@@ -150,14 +178,16 @@ class ClientProviderTest {
     final ClientInfo clientInfo = Mockito.spy(ClientInfo.class);
     //when
     Mockito.when(client.getInfo()).thenReturn(clientInfo);
+    Mockito.when(clientInfo.getStatus()).thenReturn(ClientStatus.ACTIVATE);
     Mockito.when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
     Mockito.when(client.getAccounts()).thenReturn(Set.copyOf(accounts));
     Mockito.when(clientRepository.save(client)).thenReturn(client);
     clientProvider.deactivateClient(clientId);
     //then
+    final ClientInfo clientInfoClone = SerializationUtils.clone(clientInfo);
     Mockito.verify(clientRepository).findById(clientId);
     Mockito.verify(clientRepository).save(client);
-    Assertions.assertEquals(ClientStatus.DEACTIVATE, client.getInfo().getStatus());
+    Assertions.assertEquals(ClientStatus.DEACTIVATE, clientInfoClone.getStatus());
     Assertions.assertEquals(AccountStatus.CLOSE, account.getStatus());
   }
 
