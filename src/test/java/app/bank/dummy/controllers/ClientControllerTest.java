@@ -47,7 +47,7 @@ class ClientControllerTest {
   private ClientController clientController;
 
   @Test
-  void getClients() {
+  void testGetClients() {
     //given
     final ClientDto clientDto1 = Mockito.mock(ClientDto.class);
     final ClientDto clientDto2 = Mockito.mock(ClientDto.class);
@@ -62,7 +62,7 @@ class ClientControllerTest {
   }
 
   @Test
-  void createClient() {
+  void testCreateClient() {
     //given
     final NewClientDto newClientDto = Mockito.mock(NewClientDto.class);
     final ClientDto clientDto = Mockito.mock(ClientDto.class);
@@ -78,7 +78,7 @@ class ClientControllerTest {
   }
 
   @Test
-  void getClient() {
+  void testGetClient() {
     //given
     final Long clientId = 1L;
     final ClientDto clientDto = Mockito.mock(ClientDto.class);
@@ -92,7 +92,7 @@ class ClientControllerTest {
   }
 
   @Test
-  void updateClient() {
+  void testUpdateClient() {
     //given
     final Long clientId = 1L;
     final UpdateClientDto updateClientDto = Mockito.mock(UpdateClientDto.class);
@@ -108,7 +108,7 @@ class ClientControllerTest {
   }
 
   @Test
-  void deleteClient() {
+  void testDeleteClient() {
     //given
     final Long clientId = 1L;
     //when
@@ -119,7 +119,7 @@ class ClientControllerTest {
   }
 
   @Test
-  void getClientAccounts() {
+  void testGetClientAccounts() {
     //given
     final Long clientId = 1L;
     final ClientAccountDto clientAccountDto1 = Mockito.mock(ClientAccountDto.class);
@@ -135,7 +135,7 @@ class ClientControllerTest {
   }
 
   @Test
-  void createClientAccount() {
+  void testCreateClientAccount() {
     //given
     final Long clientId = 1L;
     final NewAccountDto newAccountDto = Mockito.mock(NewAccountDto.class);
@@ -151,7 +151,7 @@ class ClientControllerTest {
   }
 
   @Test
-  void getClientAccount() {
+  void testGetClientAccount() {
     //given
     final Long clientId = 1L;
     final UUID accountId = UUID.randomUUID();
@@ -166,7 +166,7 @@ class ClientControllerTest {
   }
 
   @Test
-  void closeClientAccount() {
+  void testCloseClientAccount() {
     //given
     final Long clientId = 1L;
     final UUID accountId = UUID.randomUUID();
@@ -182,7 +182,7 @@ class ClientControllerTest {
   }
 
   @Test
-  void getClientAccountTransactions() {
+  void testGetClientAccountTransactions() {
     //given
     final Long clientId = 1L;
     final UUID accountId = UUID.randomUUID();
@@ -199,7 +199,7 @@ class ClientControllerTest {
   }
 
   @Test
-  void createClientAccountTransaction() {
+  void testCreateClientAccountTransaction() {
     //given
     final Long clientId = 1L;
     final UUID accountId = UUID.randomUUID();
@@ -217,7 +217,7 @@ class ClientControllerTest {
   }
 
   @Test
-  void getClientAccountTransaction() {
+  void testGetClientAccountTransaction() {
     //given
     final Long clientId = 1L;
     final UUID accountId = UUID.randomUUID();
