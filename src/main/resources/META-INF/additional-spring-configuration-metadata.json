@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "external-api.key",
+      "type": "java.lang.String",
+      "description": "Url Key for external api to get the currency tax rate."
+    }
+  ]
+}

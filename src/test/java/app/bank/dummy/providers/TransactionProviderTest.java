@@ -22,6 +22,7 @@ import app.bank.dummy.mappers.TransactionMapper;
 import app.bank.dummy.repositories.AccountRepository;
 import app.bank.dummy.repositories.ClientRepository;
 import app.bank.dummy.repositories.TransactionRepository;
+import app.bank.dummy.utils.ExternalApiUtils;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -36,6 +37,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.util.SerializationUtils;
@@ -395,48 +397,51 @@ class TransactionProviderTest {
   @ParameterizedTest
   @ValueSource(doubles = {100d, 200d})
   void testCreateClientAccountTransactionShouldReturnClientTransactionDto(double amount) {
-    //given
-    final NewTransactionDto newTransactionDto = Mockito.mock(NewTransactionDto.class);
-    final Long clientId = 1L;
-    final Client client = Mockito.mock(Client.class);
-    final ClientInfo clientInfo = Mockito.mock(ClientInfo.class);
-    final UUID debitAccountId = UUID.randomUUID();
-    final Account debitAccount = Mockito.spy(Account.class);
-    final List<Account> debitAccounts = List.of(debitAccount);
-    final double balanceDebitAccount = 200d;
-    final Account creditAccount = Mockito.spy(Account.class);
-    final UUID creditAccountId = UUID.randomUUID();
-    final double creditAccountBalance = 50d;
-    final Transaction transaction = Mockito.mock(Transaction.class);
-    final ClientTransactionDto clientTransactionDto = Mockito.mock(ClientTransactionDto.class);
-    final Currency debitCurrency = Mockito.mock(Currency.class);
-    final Currency creditCurrency = Mockito.mock(Currency.class);
-    //when
-    Mockito.when(debitAccount.getCurrency()).thenReturn(debitCurrency);
-    Mockito.when(creditAccount.getCurrency()).thenReturn(creditCurrency);
-    Mockito.when(newTransactionDto.amount()).thenReturn(amount);
-    Mockito.when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
-    Mockito.when(client.getInfo()).thenReturn(clientInfo);
-    Mockito.when(clientInfo.getStatus()).thenReturn(ClientStatus.ACTIVATE);
-    Mockito.when(client.getAccounts()).thenReturn(Set.copyOf(debitAccounts));
-    Mockito.when(debitAccount.getId()).thenReturn(debitAccountId);
-    Mockito.when(debitAccount.getStatus()).thenReturn(AccountStatus.OPEN);
-    Mockito.when(debitAccount.getBalance()).thenReturn(balanceDebitAccount);
-    Mockito.when(accountRepository.save(debitAccount)).thenReturn(debitAccount);
-    Mockito.when(newTransactionDto.creditAccountId()).thenReturn(creditAccountId);
-    Mockito.when(creditAccount.getBalance()).thenReturn(creditAccountBalance);
-    Mockito.when(accountRepository.findById(creditAccountId)).thenReturn(Optional.of(creditAccount));
-    Mockito.when(creditAccount.getStatus()).thenReturn(AccountStatus.OPEN);
-    Mockito.when(creditAccount.getId()).thenReturn(creditAccountId);
-    Mockito.when(accountRepository.save(creditAccount)).thenReturn(creditAccount);
-    Mockito.when(transactionRepository.save(Mockito.any())).thenReturn(transaction);
-    Mockito.when(transactionMapper.toDto(transaction, debitAccount.getBalance(), TransactionType.DEBIT, creditAccountId)).thenReturn(clientTransactionDto);
-    final ClientTransactionDto result = transactionProvider.createClientAccountTransaction(clientId, debitAccountId, newTransactionDto);
-    //then
-    final Account creditAccountClone = SerializationUtils.clone(creditAccount);
-    final Account debitAccountClone = SerializationUtils.clone(debitAccount);
-    Assertions.assertEquals(clientTransactionDto, result);
-    Assertions.assertEquals(creditAccountBalance + amount, creditAccountClone.getBalance());
-    Assertions.assertEquals(balanceDebitAccount - amount, debitAccountClone.getBalance());
+    try(MockedStatic<ExternalApiUtils> externalApiUtilsMockedStatic = Mockito.mockStatic(ExternalApiUtils.class)) {
+      //given
+      final NewTransactionDto newTransactionDto = Mockito.mock(NewTransactionDto.class);
+      final Long clientId = 1L;
+      final Client client = Mockito.mock(Client.class);
+      final ClientInfo clientInfo = Mockito.mock(ClientInfo.class);
+      final UUID debitAccountId = UUID.randomUUID();
+      final Account debitAccount = Mockito.spy(Account.class);
+      final List<Account> debitAccounts = List.of(debitAccount);
+      final double balanceDebitAccount = 200d;
+      final Account creditAccount = Mockito.spy(Account.class);
+      final UUID creditAccountId = UUID.randomUUID();
+      final double creditAccountBalance = 50d;
+      final Transaction transaction = Mockito.mock(Transaction.class);
+      final ClientTransactionDto clientTransactionDto = Mockito.mock(ClientTransactionDto.class);
+      final Currency debitCurrency = Mockito.mock(Currency.class);
+      final Currency creditCurrency = Mockito.mock(Currency.class);
+      //when
+      Mockito.when(debitAccount.getCurrency()).thenReturn(debitCurrency);
+      Mockito.when(creditAccount.getCurrency()).thenReturn(creditCurrency);
+      Mockito.when(newTransactionDto.amount()).thenReturn(amount);
+      Mockito.when(clientRepository.findById(clientId)).thenReturn(Optional.of(client));
+      Mockito.when(client.getInfo()).thenReturn(clientInfo);
+      Mockito.when(clientInfo.getStatus()).thenReturn(ClientStatus.ACTIVATE);
+      Mockito.when(client.getAccounts()).thenReturn(Set.copyOf(debitAccounts));
+      Mockito.when(debitAccount.getId()).thenReturn(debitAccountId);
+      Mockito.when(debitAccount.getStatus()).thenReturn(AccountStatus.OPEN);
+      Mockito.when(debitAccount.getBalance()).thenReturn(balanceDebitAccount);
+      Mockito.when(accountRepository.save(debitAccount)).thenReturn(debitAccount);
+      Mockito.when(newTransactionDto.creditAccountId()).thenReturn(creditAccountId);
+      Mockito.when(creditAccount.getBalance()).thenReturn(creditAccountBalance);
+      Mockito.when(accountRepository.findById(creditAccountId)).thenReturn(Optional.of(creditAccount));
+      Mockito.when(creditAccount.getStatus()).thenReturn(AccountStatus.OPEN);
+      Mockito.when(creditAccount.getId()).thenReturn(creditAccountId);
+      Mockito.when(accountRepository.save(creditAccount)).thenReturn(creditAccount);
+      Mockito.when(transactionRepository.save(Mockito.any())).thenReturn(transaction);
+      Mockito.when(transactionMapper.toDto(transaction, debitAccount.getBalance(), TransactionType.DEBIT, creditAccountId)).thenReturn(clientTransactionDto);
+      externalApiUtilsMockedStatic.when(() -> ExternalApiUtils.getTaxRate(debitCurrency, creditCurrency, null)).thenReturn(1.0);
+      final ClientTransactionDto result = transactionProvider.createClientAccountTransaction(clientId, debitAccountId, newTransactionDto);
+      //then
+      final Account creditAccountClone = SerializationUtils.clone(creditAccount);
+      final Account debitAccountClone = SerializationUtils.clone(debitAccount);
+      Assertions.assertEquals(clientTransactionDto, result);
+      Assertions.assertEquals(creditAccountBalance + amount, creditAccountClone.getBalance());
+      Assertions.assertEquals(balanceDebitAccount - amount, debitAccountClone.getBalance());
+    }
   }
 }

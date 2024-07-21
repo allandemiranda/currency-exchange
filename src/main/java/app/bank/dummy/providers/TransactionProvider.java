@@ -24,6 +24,7 @@ import app.bank.dummy.repositories.AccountRepository;
 import app.bank.dummy.repositories.ClientRepository;
 import app.bank.dummy.repositories.TransactionRepository;
 import app.bank.dummy.services.TransactionService;
+import app.bank.dummy.utils.ExternalApiUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import jakarta.validation.constraints.Positive;
@@ -55,7 +56,7 @@ public class TransactionProvider implements TransactionService {
   private final TransactionMapper transactionMapper;
   private final AccountRepository accountRepository;
   private final ClientRepository clientRepository;
-  @Value("${external-api.key}")
+  @Value("${external-api.key:default}")
   private String key;
 
   @Override
@@ -133,7 +134,7 @@ public class TransactionProvider implements TransactionService {
     if(credit.getStatus().equals(AccountStatus.CLOSE)) {
       throw new AccountCloseException(accountId);
     } else {
-      final double taxRate = this.getTaxRate(debitUpdate.getCurrency(), credit.getCurrency());
+      final double taxRate = ExternalApiUtils.getTaxRate(debitUpdate.getCurrency(), credit.getCurrency(), this.getKey());
       transaction.setTaxRate(taxRate);
       credit.setBalance(credit.getBalance() + (amount * taxRate));
       return this.getAccountRepository().save(credit);
@@ -159,19 +160,4 @@ public class TransactionProvider implements TransactionService {
     }
   }
 
-  @Positive
-  private double getTaxRate(final @NonNull Currency debitCurrency, final @NonNull Currency creditCurrency) {
-    return 1.0;
-//    final String url = "https://v6.exchangerate-api.com/v6/".concat(key).concat("/latest/").concat(creditCurrency.getName());
-//    final HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).method("GET", HttpRequest.BodyPublishers.noBody()).build();
-//
-//    try (final HttpClient httpClient = HttpClient.newHttpClient()) {
-//      final HttpResponse<InputStream> response = httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
-//      final JsonElement root = JsonParser.parseReader(new InputStreamReader(response.body()));
-//      return root.getAsJsonObject().asMap().get("conversion_rates").getAsJsonObject().asMap().get(debitCurrency.getName()).getAsDouble();
-//    } catch (IOException | InterruptedException e) {
-//      Thread.currentThread().interrupt();
-//      throw new RateTaxUnavailableException();
-//    }
-  }
 }
